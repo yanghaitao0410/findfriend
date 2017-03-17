@@ -2,6 +2,28 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.yht.findfriend.dao.UserDao">
     <select id="findUserByUserName" parameterType="string" resultType="com.yht.findfriend.entity.User">
-    	select user_id, user_name, user_pwd from user where user_name = #{user_name}
+    	select 
+    		user_id, user_name, user_pwd 
+    	from 
+    		user
+		where 
+			user_name = #{user_name}
     </select>
+    
+    <insert id="registerAccount" parameterType="com.yht.findfriend.entity.User">
+    	insert into user 
+    		(user_name, user_pwd, user_info) 
+    	value
+    		(#{user_name}, #{user_pwd}, #{user_info})
+    </insert>
+    
+    <select id="findUserByNameAndPwd" parameterType="string" resultType="com.yht.findfriend.entity.User">
+    	select 
+    		user_id, user_name, user_pwd, nick_name 
+    	from
+    		user
+    	where 
+    		user_name=#{user_name} and user_pwd=#{user_pwd}
+    </select>
+    
 </mapper>

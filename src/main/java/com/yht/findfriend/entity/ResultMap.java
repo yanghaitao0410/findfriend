@@ -6,6 +6,7 @@ public class ResultMap {
 
 	private int status;
 	private String msg;
+	private User user;
 	private List list;
 	public int getStatus() {
 		return status;
@@ -25,5 +26,12 @@ public class ResultMap {
 	public void setList(List list) {
 		this.list = list;
 	}
+	public User getUser() {
+		return user;
+	}
+	public void setUser(User user) {
+		this.user = user;
+	}
+	
 	
 }
