@@ -13,5 +13,7 @@ public interface UserService {
 	public ResultMap registerAccount(User user);
 
 	public ResultMap findUserByNameAndPwd(String user_name, String user_pwd);
+
+	public ResultMap editAccountInfo(User user);
 	
 }

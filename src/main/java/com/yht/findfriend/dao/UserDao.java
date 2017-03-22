@@ -13,4 +13,6 @@ public interface UserDao {
 
 	User findUserByNameAndPwd(Map<String, String> map);
 
+	int editAccountInfo(User user);
+
 }

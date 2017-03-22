@@ -1,13 +1,17 @@
 package com.yht.findfriend.entity;
 
-import java.util.List;
-
 public class ResultMap {
 
 	private int status;
 	private String msg;
 	private User user;
-	private List list;
+	private Object data;
+	public Object getData() {
+		return data;
+	}
+	public void setData(Object data) {
+		this.data = data;
+	}
 	public int getStatus() {
 		return status;
 	}
@@ -20,17 +24,15 @@ public class ResultMap {
 	public void setMsg(String msg) {
 		this.msg = msg;
 	}
-	public List getList() {
-		return list;
-	}
-	public void setList(List list) {
-		this.list = list;
-	}
 	public User getUser() {
 		return user;
 	}
 	public void setUser(User user) {
 		this.user = user;
+	}
+	@Override
+	public String toString() {
+		return "ResultMap [status=" + status + ", msg=" + msg + ", user=" + user + ", data=" + data + "]";
 	}
 	
 	

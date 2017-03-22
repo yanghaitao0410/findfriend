@@ -62,5 +62,19 @@ public class UserServiceImpl implements UserService {
 		return result;
 	}
 
+	@Override
+	public ResultMap editAccountInfo(User user) {
+		int count = dao.editAccountInfo(user);
+		ResultMap result = new ResultMap();
+		if(count == 1){
+			result.setStatus(0);
+			result.setMsg("信息编辑成功");
+		}else{
+			result.setStatus(1);
+			result.setMsg("信息编辑失败");
+		}
+		return result;
+	}
+
 
 }

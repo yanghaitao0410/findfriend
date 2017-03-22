@@ -3,6 +3,7 @@ package com.yht.findfriend.entity;
 public class User {
 
 	private int user_id;
+	private int friend_id;
 	private String user_name;
 	private String user_pwd;
 	private String nick_name;
@@ -10,6 +11,13 @@ public class User {
 	private String user_sex;
 	private String user_phone_num;
 	private String user_education;
+	
+	public int getFriend_id() {
+		return friend_id;
+	}
+	public void setFriend_id(int friend_id) {
+		this.friend_id = friend_id;
+	}
 	public int getUser_id() {
 		return user_id;
 	}

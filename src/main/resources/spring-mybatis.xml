@@ -52,7 +52,7 @@
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
 		<property name="basePackage" value="com.yht.findfriend.dao" />
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
-	</bean>
+	</bean> 
 
 	<!-- 配置transactionManager事务管理器 -->
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">

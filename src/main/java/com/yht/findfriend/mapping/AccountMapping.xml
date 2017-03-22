@@ -26,4 +26,14 @@
     		user_name=#{user_name} and user_pwd=#{user_pwd}
     </select>
     
+    <update id="editAccountInfo" parameterType="com.yht.findfriend.entity.User">
+    	update user 
+    	<set>
+			<if test="user_sex != null">user_sex = #{user_sex}</if>
+			<if test="user_phone_num != null">,user_phone_num = #{user_phone_num}</if>
+			<if test="nick_name != null">,nick_name = #{nick_name}</if>
+		</set>
+		where user_id = #{user_id}
+    </update>
+    
 </mapper>

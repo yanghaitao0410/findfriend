@@ -75,10 +75,18 @@ public class AccountController {
 			Cookie cookie = new Cookie("user_id", result.getUser().getUser_id()+ "");
 			cookie.setMaxAge(3600);
 			response.addCookie(cookie);
+			request.setAttribute("user_name", user_name);
 			return "index";	
 		}
 		request.setAttribute("msg", "用户名或密码错误");
 		return "login";
+	}
+	
+	@RequestMapping("editAccountInfo")
+	@ResponseBody
+	public ResultMap editAccountInfo(User user){
+		ResultMap result = userService.editAccountInfo(user);
+		return result;
 	}
 	  
 }
