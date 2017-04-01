@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yht.findfriend.dao.ShareDao">
+    <insert id="sendShare" parameterType="com.yht.findfriend.entity.Share">
+    	insert into share
+    	<set>
+    		user_id = #{user_id}, user_name = #{user_name}, share_msg = #{share_msg}, share_creatime = #{share_creatime}
+    		<if test="image_uri != null">
+    			, image_uri = #{image_uri}
+    		</if>
+    		<if test="share_tag != null">
+    			, share_tag = #{share_tag}
+    		</if>
+    	</set>
+    </insert>
+    <sql id="share_columns">
+    	user_id, user_name,share_id, share_msg, image_uri, share_tag, endorse_count, share_creatime
+    </sql>
+    
+    <select id="loadShare" resultType="com.yht.findfriend.entity.Share">
+    	select 
+    	<include refid="share_columns"/>
+    	from share
+    	where user_id = #{user_id} 
+    	order by endorse_count desc
+    	limit #{index}, 5
+    </select>
+    
+    <select id="loadHotShare" resultType="com.yht.findfriend.entity.Share">
+    	select 
+    	<include refid="share_columns"/>
+    	from share
+    	where user_id not in(#{user_id}) 
+    	order by endorse_count desc limit #{index}, 5 
+    </select>
+    
+    <select id="loadFriendShare" resultType="com.yht.findfriend.entity.Share">
+    	select 
+    	<include refid="share_columns"/>
+    	from share
+    	where user_id in(
+    		select  friend_id
+			from  user_friend
+			where  user_id = #{user_id} and status = 0
+		) 
+		order by endorse_count desc limit #{index}, 5
+    </select>
+    <select id="loadShareByShare_id" resultType="com.yht.findfriend.entity.Share">
+    	select 
+    	<include refid="share_columns"/>
+    	from share 
+    	where share_id = #{share_id}
+    </select>
+    
+   <update id="updateShare" parameterType="com.yht.findfriend.entity.Share">
+   	update share 
+   	<set>
+   		<if test="share_msg != null">
+   			share_msg = #{share_msg}
+   		</if>
+   		<if test="image_uri != null">
+   			, image_uri = #{image_uri}
+   		</if>
+   		<if test="share_status != null">
+   			, share_status = #{share_status}
+   		</if>
+   		<if test="share_tag != null">
+   			, share_tag = #{share_tag}
+   		</if>
+   		<if test="endorse_count != null">
+   			, endorse_count = #{endorse_count}
+   		</if>
+   	</set>
+   	where user_id = #{user_id} and share_id = #{share_id}
+   </update>
+    
+    <select id="loadSpecificShare" resultType="com.yht.findfriend.entity.Share">
+    	select 
+    	<include refid="share_columns"/>
+    	from share
+    	where user_id = #{user_id}
+    	limit #{index}, 5
+    </select>
+    
+   <!--  <update id="resetShare" parameterType="string">
+    	updata share set share_status = 0
+    	where share_status = 1 and user_id = 
+    </update> -->
+    
+</mapper>

@@ -30,7 +30,7 @@ public class FriendController {
 	@RequestMapping("loadGroup")
 	@ResponseBody
 	public ResultMap QueryGroup(String user_id){
-		System.out.println(user_id);
+//		System.out.println(user_id);
 		ResultMap result = service.QueryGroup(user_id);
 		return result;
 	}
@@ -39,7 +39,7 @@ public class FriendController {
 	@RequestMapping("loadFriendInfo")
 	@ResponseBody
 	public ResultMap QueryFriendInfo(String user_id, String friend_id){
-		System.out.println(user_id +" " + friend_id);
+//		System.out.println(user_id +" " + friend_id);
 		ResultMap result = service.QueryFriendInfo(user_id, friend_id);
 		return result;
 	}

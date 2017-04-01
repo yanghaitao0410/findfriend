@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yht.findfriend.dao.GreatDao">
+     <select id="getGreat" resultType="int">
+    	select count(great_id)
+    	from great
+    	where share_id = #{share_id} and user_id = #{user_id}
+    </select>
+    
+    <delete id="deleteGreat">
+    	delete from great
+    	where share_id = #{share_id} and user_id = #{user_id}
+    </delete>
+    
+    <insert id="insertGreat">
+    	insert into great
+    	set share_id = #{share_id}, user_id = #{user_id}
+    </insert>
+    
+</mapper>

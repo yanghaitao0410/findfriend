@@ -14,93 +14,93 @@
 	<link rel="stylesheet" type="text/css" href="../skin/qingxin/skin.css" id="layout-skin"/>
 	<script type="text/javascript" src="../js/jquery.min.js"></script>
 	<script type="text/javascript" src ="../js/jquery.cookie.js" ></script>
+	<script type="text/javascript" src ="../js/index.js" ></script>
     <script type="text/javascript">
     	$(function(){
+    		var context = "${pageContext.request.contextPath}";
     		var user_id = $.cookie("user_id");
-    		alert(user_id);
-    		if(user_id == null){
-    			window.location.href="login.jsp";
+    		var user_name = $.cookie("user_name");
+    		var user_pwd = $.cookie("user_pwd");
+    		var index = 0;
+    		if(user_name == null ||user_name == "" ||user_name == undefined){
+    			window.location.href= context+"/account/toLogin";
     		}
-    		
-    		var groups = new Array();
-    		
-    		$.ajax({
-    			url:"http://localhost:8080/findfriend/friend/loadGroup",
-    			type:"post",
-    			data:{"user_id" : user_id},
-    			dataType:"json",
-    			success:function(result){
-    				var data = result.data;
-    				for(var i=0; i < data.length; i++){
-    					groups[i] = data[i];
-    				}
-    			}
-    		});
-    		alert(groups);
-    		$.ajax({
-    			url:"http://localhost:8080/findfriend/friend/loadFriend",
-    			type:"post",
-    			data:{"user_id" : user_id},
-    			dataType:"json",
-    			success:function(result){
-    				if(result.status == 0){
-    					var list = result.data;
-    					appendMenu(list);
-    				}
-    			}
-    		});
-    		
-    		
-    		 //创建子菜单
-    	    function createChild(childArray,group_name){
-    	    	var childResult='';
-    	    	for(var i =0;i<childArray.length;i++){
-    	    		if(childArray[i].group_name == group_name){
-    	    			var sli = '<li><a><i class="icon-font">&#xe610</i><span>'+childArray[i].friend_name+'</span></a></li>';
-    					$li = $(sli);
-    					$li.data("friend_id",childArray[i].friend_id);
-    	    			childResult += sli;    			 
-    	    		}
-    	    	}
-    	    	return childResult;
-    	    }
-    	    
-    	    //拼接菜单 
-    		function appendMenu(data){	
-    			var dataTree = data;
-    		    var childArray = new Array();
-    		    var childIndex =0;
-    		    var result='';
-    		    for(var i = 0;i<dataTree.length;i++){
-    		    	if(dataTree[i].parent_id != 0){
-    		    		childArray[childIndex] = dataTree[i];
-    		    		childIndex++;
-    		    	}else{
-    		    		var sli = '<li><a><i class="icon-font">&#xe610</i><span>'+dataTree[i].friend_name+'</span></a></li>';
-    					$li = $(sli);
-    					$li.data("friend_id",dataTree[i].friend_id);
-    	    			result += sli;  
-    		    	}
-    		    }
-    		   
-    		    for(var k =0;k<groups.length;k++){
-    		    	if(groups[k] != null){
-    		    		var sli = '<a>'+groups[k]+'</a>';
-        				/*$li = $(sli);
-        				$li.data("group_id",parentArray[i].group_id);*/
-        		    	
-        		    	result += '<li class="menu-header">' + sli;    	
-        		    	result +='<ul class="menu-item-child">';
-        		    	result += createChild(childArray,groups[k]);
-        		    	result +='</ul></li>';
-    		    	}
-    		    	
-    		    }
-    		    $(".side-menu").append(result);	  
-    		}
-    		
+    		//加载用户好友分组
+    		loadGroup(user_id, context);
+    		//加载用户好友
+    		loadFriend(user_id, context);
+
     		$(".side-menu > li").addClass("menu-item");
+			//加载热门动态
+    		loadHotShare(user_id, index, context, user_name);
     		
+			//点击热门动态按钮
+    		$("#hot_share").click(function(){
+    			$("#share_list").empty();
+    			loadHotShare(user_id, index, context, user_name);
+    		});
+    		
+    		//点击加号链接打开"发送动态"页面
+    		$("#send_share").click(function(){
+    			window.location.href = "${pageContext.request.contextPath}/share/toUpload?user_name=" + $.cookie("user_name");
+    		});
+    		
+    		//点击个人动态链接加载个人动态
+    		$("#user_share").click(function(){
+    			$("#share_list").empty();
+    			loadSelfShare(context, user_id, user_name , index);
+    		});
+    		
+    		//点击好友动态链接加载好友动态
+    		$("#friend_share").click(function(){
+    			$("#share_list").empty();
+    			loadFriendShare(user_id, index, context, user_name);
+    		});
+    		
+    		//点击退出按钮后跳转到登陆页面
+    		$("#exit").click(function(){
+    			window.location.href= context+"/account/exitUser";
+    			//清除session
+    			<%-- <%
+    			System.out.print("exit:dfgdsfgdfsgds");
+    				HttpSession sess = request.getSession();
+    			session.removeAttribute("user_id");
+    			session.removeAttribute("user_name");
+    			session.removeAttribute("user_pwd");
+    		%> --%>
+    			/* window.location.href= context+"/account/toLogin";   */
+    		}); 
+    		
+    		//点击好友后加载该好友动态
+    		$("#friend_list").on("click", "span", function(){
+    			$("#share_list").empty();
+    			var friend_id = $(this).parents("li").attr("id");
+    			loadSpecificShare(context, friend_id, index, user_name);
+    		});
+    		
+    		//点赞功能
+    		$("#share_list").on("click", "img", function(){
+    			var share_id = $(this).parents("li").data("share_id");
+    			$endorse_count = $(this).next();
+    			clickGreed(context, share_id, user_id);
+    		});
+    		
+    		//动态显示隐藏评论区
+    		$("#share_list").on("click", ".show_edit_talk", function(){
+    			$(this).parent().find("div").toggle();
+    		})
+    		
+    		//发表评论
+    		$("#share_list").on("click", ".send_user_talk", function(){
+    			var talk_info = $(this).prev().val();
+    			var share_id = $(this).parents("li").data("share_id");
+    			send_talk(context, share_id, talk_info);
+    		})
+    		
+    		//TODO删除该用户发过的某个动态
+    		$("#share_list").on("click", ".delete_talk", function(){
+    			alert("dfdddddddddd");
+    		});
     		
     	});
     </script>
@@ -112,13 +112,13 @@
 			<span class="header-logo">findfriend</span> 
 			<a class="header-menu-btn" href="javascript:;"><i class="icon-font">&#xe600;</i></a>
 			<ul class="header-bar">
-				<li class="header-bar-role" ><a href="javascript:;">${user_name}</a></li>
+				<%-- <li class="header-bar-role" ><a href="javascript:;">${user_name}</a></li> --%>
 				<li class="header-bar-nav">
-					<a href="javascript:;">admin<i class="icon-font" style="margin-left:5px;">&#xe60c;</i></a>
+					<a href="javascript:;">${user_name}<i class="icon-font" style="margin-left:5px;">&#xe60c;</i></a>
 					<ul class="header-dropdown-menu">
 						<li><a href="javascript:;">个人信息</a></li>
 						<!-- <li><a href="javascript:;">切换账户</a></li> -->
-						<li><a href="javascript:;">退出</a></li>
+						<li><a id="exit" href="javascript:;">退出</a></li>
 					</ul>
 				</li>
 				<li class="header-bar-nav"> 
@@ -133,7 +133,13 @@
 			</ul>
 		</header>
 		<aside class="layout-side">
-			<ul class="side-menu">
+			<ul id="friend_list" class="side-menu">
+			  
+			</ul>
+		</aside>
+		
+		<aside class="layout-left-side">
+			<ul id="new_friend_list">
 			  
 			</ul>
 		</aside>
@@ -145,16 +151,36 @@
 				<button class="tab-btn btn-left"><i class="icon-font">&#xe60e;</i></button>
                 <nav class="tab-nav">
                     <div class="tab-nav-content">
-                        <a href="javascript:;" class="content-tab active" data-id="home.html">首页</a>
+                        <a id="hot_share" href="javascript:;" class="content-tab active">热门动态</a>
+					<!--<a href="javascript:;" class="content-tab active" data-id="home.html">首页</a> -->
+                    </div>
+                    <div class="tab-nav-content">
+                        <a id="friend_share" href="javascript:;" class="content-tab active">好友动态</a>
+                    </div>
+                     <div class="tab-nav-content">
+                        <a id="user_share" href="javascript:void(0);" class="content-tab active">个人动态</a>
+                    </div>
+                    <div class="tab-nav-content">
+                        <a id="user_talked_share" href="javascript:void(0);" class="content-tab active">评论过的动态</a>
+                    </div>
+                    <div class="tab-nav-content">
+                        <a id="user_greated_share" href="javascript:void(0);" class="content-tab active">赞过的动态</a>
+                    </div>
+                     <div class="tab-nav-content">
+                        <a id="send_share" href="javascript:;" class="content-tab active">+</a>
                     </div>
                 </nav>
                 <button class="tab-btn btn-right"><i class="icon-font">&#xe60f;</i></button>
 			</div>
 			<div class="layout-main-body">
-				<iframe class="body-iframe" name="iframe0" width="100%" height="99%" src="home.html" frameborder="0" data-id="home.html" seamless></iframe>
+			
+				<ul id="share_list">
+					
+				</ul>
+				<!-- <iframe class="body-iframe" name="iframe0" width="100%" height="99%" src="home.html" frameborder="0" data-id="home.html" seamless></iframe> -->
 			</div>
 		</section>
-		<div class="layout-footer">@2016 0.1 www.mycodes.net</div>
+		<div class="layout-footer">@2017 0.1 mycodes</div>
 	</div>
 	<script type="text/javascript" src="../js/sccl.js"></script>
 	<script type="text/javascript" src="../js/sccl-util.js"></script>

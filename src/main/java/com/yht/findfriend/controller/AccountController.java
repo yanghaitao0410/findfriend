@@ -6,6 +6,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,8 +24,11 @@ public class AccountController {
 
 	@Resource
 	private UserService userService;
-	@SuppressWarnings("unused")
 	
+	@RequestMapping("/")
+	public String login(){
+		return "login";
+	}
 	
 	@RequestMapping("/checkUserName")
 	@ResponseBody
@@ -65,21 +69,33 @@ public class AccountController {
 		return "login";
 	}*/
 	
-	@RequestMapping(value="/toIndex",method=RequestMethod.POST)
+	@RequestMapping(value="/toIndex")
 	public String toIndex(HttpServletRequest request, HttpServletResponse response){
+		HttpSession session = request.getSession();
 		String user_name = request.getParameter("user_name");
 		String user_pwd = request.getParameter("user_pwd");
+		if(user_name == null || user_pwd == null){
+			return "login";
+		}
 		String md5_pwd = AccountUtil.md5(user_pwd);
 		ResultMap result = userService.findUserByNameAndPwd(user_name, md5_pwd);
 		if(0 == result.getStatus()){
+			session.setAttribute("user_id", result.getUser().getUser_id()+ "");
+			session.setAttribute("user_name", user_name);
+			session.setAttribute("user_pwd", md5_pwd);
 			Cookie cookie = new Cookie("user_id", result.getUser().getUser_id()+ "");
-			cookie.setMaxAge(3600);
+			cookie.setMaxAge(6000);
 			response.addCookie(cookie);
-			request.setAttribute("user_name", user_name);
+//			request.setAttribute("user_name", user_name);
 			return "index";	
 		}
 		request.setAttribute("msg", "用户名或密码错误");
 		return "login";
+	}
+	
+	@RequestMapping("redirectIndex")
+	public String redirectIndex(){
+		return "index";
 	}
 	
 	@RequestMapping("editAccountInfo")
@@ -88,5 +104,22 @@ public class AccountController {
 		ResultMap result = userService.editAccountInfo(user);
 		return result;
 	}
-	  
+	
+	@RequestMapping("queryUserName")
+	@ResponseBody
+	public ResultMap queryUserName(int user_id){
+		ResultMap resultMap = userService.queryUserName(user_id);
+		return resultMap;
+	}
+	
+	@RequestMapping("exitUser")
+	public String exitUser(HttpServletRequest request){
+		HttpSession session = request.getSession();
+		session.removeAttribute("user_id");
+		session.removeAttribute("user_name");
+		session.removeAttribute("user_pwd");
+		//session.invalidate();
+		return "login";
+	}
+	
 }

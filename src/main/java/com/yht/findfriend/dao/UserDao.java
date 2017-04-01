@@ -15,4 +15,7 @@ public interface UserDao {
 
 	int editAccountInfo(User user);
 
+	String getUser_id(int user_id);
+
+
 }

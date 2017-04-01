@@ -29,9 +29,9 @@ public class FriendServiceImpl implements FriendService {
 		result.setMsg("查询成功");
 		result.setData(friends);
 //		result.setList(list);
-		for (Friend friend : friends) {
+		/*for (Friend friend : friends) {
 			System.out.println(friend);
-		}
+		}*/
 		return result;
 	}
 
@@ -42,7 +42,6 @@ public class FriendServiceImpl implements FriendService {
 		result.setStatus(0);
 		result.setMsg("查询组名成功");
 		result.setData(groups);
-		System.out.println(groups);
 		return result;
 	}
 

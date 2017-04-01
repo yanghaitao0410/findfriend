@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public ResultMap registerAccount(User user) {
 		int account = dao.registerAccount(user);
-		System.out.println("account:" +account);
+//		System.out.println("account:" +account);
 		if(1 == account){
 			ResultMap result = new ResultMap();
 			result.setStatus(0);
@@ -74,6 +74,22 @@ public class UserServiceImpl implements UserService {
 			result.setMsg("信息编辑失败");
 		}
 		return result;
+	}
+
+	@Override
+	public ResultMap queryUserName(int user_id) {
+		String user_name = dao.getUser_id(user_id);
+//		System.out.println("user_name:" + user_name);
+		ResultMap resultMap = new ResultMap();
+//		if(user_name != null){
+			resultMap.setStatus(0);
+			resultMap.setMsg("查询用户名成功");
+			resultMap.setData(user_name);
+		/*}else{
+			resultMap.setStatus(1);
+			resultMap.setMsg("查询用户名失败");
+		}*/
+		return resultMap;
 	}
 
 

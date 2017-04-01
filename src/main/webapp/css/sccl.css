@@ -81,7 +81,7 @@ a cite{font-style: normal; *cursor:pointer;}
 .layout-main-tab{height: 39px;line-height: 39px;overflow: hidden;position: relative;background: #f2f2f2;border-bottom: solid 1px #0e9aef;}
 .layout-main-body{position: absolute;top: 40px;bottom: 0;left: 0;right: 0;overflow:auto;margin:0 0 0 10px;}
 .layout-footer{position: fixed; left: 200px; right: 0; bottom: 0; height: 30px;line-height:30px;background-color: #eee;border-top:1px solid #ccc;text-align:center;z-index:998;}
-
+.layout-left-side{position : fixed; display:block; top: 45px; bottom:0px;left:1335px; width: 200px;overflow-x: hidden;background-color: #f2f2f2;color: #c2c2c2;z-index:999;}
 /* 头部 */
 .header-logo{margin-left: 10px;color:#fff;line-height:45px;font-size:16px;}
 .header-bar{float:right;color:#fff;height: 45px;line-height:45px;margin-right: 10px;}

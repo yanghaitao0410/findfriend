@@ -27,6 +27,13 @@ a[href^="http://tongji.baidu.com"]{display: none;}
 	color: red;
 }
 
+.user_send_div_hide{
+	display: none;
+}
+
+.user_send_div_show{
+	display: block;
+}
 
 /*.w1060{ width:1060px; height:auto; margin:0 auto;}*/
 .padding_nei{ /*写padding不撑开*/
