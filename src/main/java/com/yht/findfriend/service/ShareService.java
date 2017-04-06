@@ -58,9 +58,54 @@ public interface ShareService {
 	 */
 	ResultMap loadSpecificShare(String friend_id, int index);
 
+	/**
+	 * 加载评论过的动态的服务方法
+	 * @param talk_user_id
+	 * @param index
+	 * @return
+	 */
+	ResultMap loadTalkedShare(int talk_user_id, int index);
 
-/*	//重置动态载入状态的服务方法
-	ResultMap resetShare(String user_id);*/
+	/**
+	 * 加载当前用户赞过动态的服务方法
+	 * @param user_id
+	 * @param index 
+	 * @return
+	 */
+	ResultMap loadGreatShare(String user_id, int index);
+
+	/**
+	 * 动态移入回收站的服务方法
+	 * @param user_id
+	 * @param share_id
+	 * @return
+	 */
+	ResultMap Share2Recycle(String user_id, String share_id);
+
+	/**
+	 * 加载回收站动态的服务方法
+	 * @param user_id
+	 * @return
+	 */
+	ResultMap loadRecycleShare(String user_id);
+
+	/**
+	 * 重置动态载入状态的服务方法
+	 * @param user_id
+	 * @param share_id
+	 * @return
+	 */
+	ResultMap resetShare(String user_id, String share_id);
+
+	/**
+	 * 删除动态的服务方法
+	 * @param user_id
+	 * @param share_id
+	 * @return
+	 */
+	ResultMap deleteShare(String user_id, String share_id);
+
+
 
 
 

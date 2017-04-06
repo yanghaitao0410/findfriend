@@ -15,10 +15,12 @@ public class Talk {
 	private String talk_user_name;
 	private String talk_info;
 	private Long talk_creatime;
+	//格式化后的时间
+	private String creatime_str;
 	
 	public String getCreatime(){
 		if(talk_creatime != null){
-			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd : hh-mm-ss");
+			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh-mm-ss");
 			Date date = new Date(talk_creatime);
 			return format.format(date);
 		}
@@ -60,6 +62,21 @@ public class Talk {
 	}
 	public void setTalk_creatime(Long talk_creatime) {
 		this.talk_creatime = talk_creatime;
+	}
+
+	public String getCreatime_str() {
+		return creatime_str;
+	}
+
+	public void setCreatime_str(String creatime_str) {
+		this.creatime_str = creatime_str;
+	}
+
+	@Override
+	public String toString() {
+		return "Talk [talk_id=" + talk_id + ", share_id=" + share_id + ", talk_user_id=" + talk_user_id
+				+ ", talk_user_name=" + talk_user_name + ", talk_info=" + talk_info + ", talk_creatime=" + talk_creatime
+				+ ", creatime_str=" + creatime_str + "]";
 	}
 	
 	

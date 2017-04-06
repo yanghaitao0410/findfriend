@@ -1,5 +1,7 @@
 package com.yht.findfriend.dao;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface GreatDao {
@@ -27,5 +29,12 @@ public interface GreatDao {
 	 * @return
 	 */
 	int insertGreat(@Param("share_id")String share_id, @Param("user_id")String user_id);
+
+	/**
+	 * 根据用户id查询出当前用户赞过的所有动态
+	 * @param user_id
+	 * @return
+	 */
+	List<Integer> getShare_id(@Param("user_id")String user_id);
 	
 }

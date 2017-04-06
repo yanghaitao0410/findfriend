@@ -14,14 +14,14 @@
     	</set>
     </insert>
     <sql id="share_columns">
-    	user_id, user_name,share_id, share_msg, image_uri, share_tag, endorse_count, share_creatime
+    	user_id, user_name, share_id, share_msg, share_status, image_uri, share_tag, endorse_count, share_creatime
     </sql>
     
     <select id="loadShare" resultType="com.yht.findfriend.entity.Share">
     	select 
     	<include refid="share_columns"/>
     	from share
-    	where user_id = #{user_id} 
+    	where user_id = #{user_id} and share_status = 0
     	order by endorse_count desc
     	limit #{index}, 5
     </select>
@@ -30,7 +30,7 @@
     	select 
     	<include refid="share_columns"/>
     	from share
-    	where user_id not in(#{user_id}) 
+    	where user_id not in(#{user_id}) and share_status = 0
     	order by endorse_count desc limit #{index}, 5 
     </select>
     
@@ -78,13 +78,47 @@
     	select 
     	<include refid="share_columns"/>
     	from share
-    	where user_id = #{user_id}
+    	where user_id = #{user_id} and share_status = 0
     	limit #{index}, 5
     </select>
     
-   <!--  <update id="resetShare" parameterType="string">
-    	updata share set share_status = 0
-    	where share_status = 1 and user_id = 
-    </update> -->
+    <select id="loadShareByTalkORGreat" resultType="com.yht.findfriend.entity.Share">
+    	select 
+    	<include refid="share_columns"/>
+    	from share
+    	where share_id in
+    	<foreach collection="list" index="index" item="shareORGreat_id"
+    		 open="(" close=")" separator="," >
+    		#{shareORGreat_id}
+    	</foreach>
+    	and share_status = 0
+    	<!-- index会用foreach中的 -->
+    	limit #{index2}, 5
+    </select>
+    
+    <update id="Share2Recycle">
+    	update share set share_status = 1
+    	where user_id = #{user_id} and share_id = #{share_id}
+    </update>
+    
+    <select id="loadRecycleShare" resultType="com.yht.findfriend.entity.Share">
+    	select 
+    	<include refid="share_columns"/>
+    	from share
+    	where user_id = #{user_id} and share_status = 1
+    </select>
+    
+   <update id="resetShare">
+    	update share set share_status = 0
+    	where user_id = #{user_id} and share_id = #{share_id}
+    </update>
+    
+    <delete id="deleteShare">
+    	delete from share
+    	where share_id = #{share_id} and share_status = 1
+    </delete>
+    
+    
+    
     
 </mapper>

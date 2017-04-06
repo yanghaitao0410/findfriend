@@ -18,4 +18,11 @@ public interface TalkService {
 	 */
 	ResultMap sendTalk(Talk talk, HttpServletRequest request);
 
+	/**
+	 * 删除评论的服务方法
+	 * @param talk_id
+	 * @return
+	 */
+	ResultMap deleteTalk(Talk talk);
+
 }

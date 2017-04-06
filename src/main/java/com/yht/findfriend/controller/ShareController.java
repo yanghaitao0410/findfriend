@@ -116,6 +116,55 @@ public class ShareController {
 		return resultMap;
 	}
 	
+	/**
+	 * 加载当前用户评论过的动态
+	 * @param talk_user_id
+	 * @param index
+	 * @return
+	 */
+	@RequestMapping("loadTalkedShare")
+	@ResponseBody
+	public ResultMap loadTalkedShare(int talk_user_id, int index){
+		ResultMap resultMap = shareService.loadTalkedShare(talk_user_id, index);
+		return resultMap;
+	}
+	
+	/**
+	 * 加载当前用户赞过的动态
+	 * @param user_id
+	 * @return
+	 */
+	@RequestMapping("loadGreatShare")
+	@ResponseBody
+	public ResultMap loadGreatShare(String user_id, int index){
+		ResultMap resultMap = shareService.loadGreatShare(user_id, index);
+		return resultMap;
+	}
+	
+	/**
+	 * 将动态移入回收站
+	 * @param user_id
+	 * @param share_id
+	 * @return
+	 */
+	@RequestMapping("Share2Recycle")
+	@ResponseBody
+	public ResultMap Share2Recycle(String user_id, String share_id){
+		ResultMap resultMap = shareService.Share2Recycle(user_id, share_id);
+		return resultMap;
+	}
+	
+	/**
+	 * 加载回收站动态
+	 * @param user_id
+	 * @return
+	 */
+	@RequestMapping("loadRecycleShare")
+	@ResponseBody
+	public ResultMap loadRecycleShare(String user_id){
+		ResultMap resultMap = shareService.loadRecycleShare(user_id);
+		return resultMap;
+	}
 	
 	
 	/**
@@ -123,11 +172,38 @@ public class ShareController {
 	 * @param user_id
 	 * @return
 	 */
-	/*@RequestMapping("resetShare")
+	@RequestMapping("resetShare")
 	@ResponseBody
-	public ResultMap resetShare(String user_id){
-		ResultMap resultMap = shareService.resetShare(user_id);
+	public ResultMap resetShare(String user_id, String share_id){
+		ResultMap resultMap = shareService.resetShare(user_id, share_id);
 		return resultMap;
-	}*/
+	}
+	
+	/**
+	 * 删除动态
+	 * @param user_id
+	 * @param share_id
+	 * @return
+	 */
+	@RequestMapping("deleteShare")
+	@ResponseBody
+	public ResultMap deleteShare(String user_id, String share_id){
+		ResultMap resultMap = shareService.deleteShare(user_id, share_id);
+		return resultMap;
+	}
 	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -119,8 +119,8 @@ public class ShareServiceImpl implements ShareService {
 	}
 	
 	/**
-	 * Share处理图片路径，存入返回实体类的封装
-	 * 处理评论信息，
+	 * Share处理图片路径，存入返回实体类的封装<br>
+	 * 处理评论信息，<br>
 	 * TODO 处理动态tag
 	 * @param data
 	 * @return
@@ -150,10 +150,11 @@ public class ShareServiceImpl implements ShareService {
 	 */
 	private Share setTalks(Share share){
 		List<Talk> talks = queryTalk(share.getShare_id());
-		if(talks.size() > 0){
+		if(talks != null && talks.size() > 0){
 			List<Map<String, String>> talk_list = new ArrayList<Map<String, String>>();
 			for (Talk talk : talks) {
 				Map<String, String> talk_map = new HashMap<String, String>();
+				talk_map.put("talk_id", String.valueOf(talk.getTalk_id()));
 				talk_map.put("talk_user_name", talk.getTalk_user_name());
 				talk_map.put("talk_info", talk.getTalk_info());
 				talk_map.put("talk_creatime", talk.getCreatime());
@@ -170,7 +171,11 @@ public class ShareServiceImpl implements ShareService {
 	 * @return
 	 */
 	private List<Talk> queryTalk(int share_id){
-		List<Talk> talks = talkDao.queryTalk(share_id);
+//		Map<String, Object> data = new HashMap<String, Object>();
+//		data.put("share_id", share_id);
+		Talk talk = new Talk();
+		talk.setShare_id(share_id);
+		List<Talk> talks = talkDao.queryTalk(talk);
 		return talks;
 	}
 	
@@ -231,14 +236,113 @@ public class ShareServiceImpl implements ShareService {
 		return getResultMap(shares);
 	}
 
-	
-	/*@Override
-	public ResultMap resetShare(String user_id) {
-		shareDao.resetShare(user_id);
-		ResultMap result = new ResultMap();
-		result.setStatus(0);
-		result.setMsg("重置动态状态成功");
+	@Override
+	public ResultMap loadTalkedShare(int talk_user_id, int index) {
+		
+		Talk talk = new Talk();
+		talk.setTalk_user_id(talk_user_id);
+		
+		/*Map<String, Object> data = new HashMap<String, Object>();
+		data.put("talk_user_id", talk_user_id);
+		List<Talk> talks = talkDao.queryTalk(data);*/
+		List<Talk> talks = talkDao.queryTalk(talk);
+		
+		if(talks != null && talks.size() > 0){
+			List<Integer> share_ids = new ArrayList<Integer>();
+			for (Talk t : talks) {
+				share_ids.add(t.getShare_id());
+			}
+			System.out.println("index: "+index);
+			List<Share> shares = shareDao.loadShareByTalkORGreat(share_ids, index);
+			return getResultMap(shares);
+		}
+		return null;
+	}
+
+	@Override
+	public ResultMap loadGreatShare(String user_id, int index) {
+		List<Integer> share_ids = greatDao.getShare_id(user_id);
+		List<Share> shares = shareDao.loadShareByTalkORGreat(share_ids, index);
+		return getResultMap(shares);
+	}
+
+	@Override
+	public ResultMap Share2Recycle(String user_id, String share_id) {
+		int count = shareDao.Share2Recycle(user_id, share_id);
+		ResultMap resultMap = new ResultMap();
+		if(count == 1){
+			resultMap.setStatus(0);
+			resultMap.setMsg("删除动态成功！！您可以在回收站彻底删除该动态");
+		}else{
+			resultMap.setStatus(1);
+			resultMap.setMsg("删除动态失败");
+		}
+		return resultMap;
+	}
+
+	@Override
+	public ResultMap loadRecycleShare(String user_id) {
+		List<Share> shares = shareDao.loadRecycleShare(user_id);
+		return getResultMap(shares);
+	}
+
+	@Override
+	public ResultMap resetShare(String user_id, String share_id) {
+		int count = shareDao.resetShare(user_id, share_id);
+		ResultMap resultMap = new ResultMap();
+		if(count == 1){
+			resultMap.setStatus(0);
+			resultMap.setMsg("动态已撤回！！！");
+		}else{
+			resultMap.setStatus(1);
+			resultMap.setMsg("动态撤回失败！！！");
+		}
+		return resultMap;
+	}
+
+	@Override
+	public ResultMap deleteShare(String user_id, String share_id) {
+		Share share = shareDao.loadShareByShare_id(share_id);
+		ResultMap resultMap = new ResultMap();
+		
+		if(deleteImage(share)){
+			int count = shareDao.deleteShare(share_id);
+			greatDao.deleteGreat(share_id, user_id);
+			Talk talk = new Talk();
+			talk.setTalk_user_id(Integer.parseInt(user_id));
+			talk.setShare_id(Integer.parseInt(share_id));
+			talkDao.deleteTalk(talk);
+			if(count == 1){
+				resultMap.setStatus(0);
+				resultMap.setMsg("删除动态成功！！！！！");
+				return resultMap;
+			}
+		}
+		resultMap.setStatus(1);
+		resultMap.setMsg("删除动态失败！！！！");
+		return resultMap;
+	}
+
+	/**
+	 * 删除动态的图片
+	 * @param share
+	 * @return
+	 */
+	private boolean deleteImage(Share share){
+		boolean result = true;
+		String[] images_uri = splitUri(share.getImage_uri());
+		for (String image_uri : images_uri) {
+			File file = new File(
+					"d:"+ File.separator +"upload" + File.separator + 
+					share.getUser_id() + File.separator + image_uri);
+			if(file.exists()){
+				if(!file.delete()){
+					result = false;
+				}
+			}
+		}
 		return result;
-	}*/
+	}
+
 
 }

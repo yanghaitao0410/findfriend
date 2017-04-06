@@ -1,0 +1,110 @@
+(4)基于社交网络的好友推荐系统    
+社交网络: 描述用户间社交关系的网络拓扑结构
+好友推荐系统： 为某个用户发现好友， 可以从兴趣，过往经历，例如上过同一所学校
+
+
+用户表：
+	user_id
+	user_name
+	user_pwd
+	nick_name
+	user_info //安全信息，用户重置密码的时候输入正确该信息才可以重置密码
+	user_sex
+	user_phone_num
+	//user_education //教育经历
+	注册的时候只需要填入 user_name,user_pwd,user_info
+
+用户信息表：
+	user_id
+	hobby_id //当前的爱好id
+	hobby_name
+
+	
+	
+	
+	
+好友表：
+	user_id
+	friend_id
+	parent_id
+	friend_name
+	group_name   //用户所在分组
+	status  //用户状态 "暂时设置 0：正常状态   1：黑名单状态"
+	
+动态是存放在服务器上的，动态可以有文字信息和图片信息，动态的评论信息和文字信息存放在一起
+每一个用户都有一个文件夹存放动态图片，图片名为用户发布的时间，文件夹名为user_id
+
+
+	
+账号管理模块：
+该模块有登陆功能、注册功能
+登陆账号成功后用户可以在主界面浏览一些最近别人发送的动态，也可以选择查看好友动态，也可以查看自己发送过的动态，可以对自己的动态进行删除操作
+
+个人信息模块：
+	该模块可以查看和编辑当前用户的信息
+	可以查看好友的个人信息
+
+
+好友模块：
+在该模块可以查看自己的好友、搜索想要添加的好友、添加好友、删除好友，搜索好友的条件可以是：昵称或用户名
+
+动态模块：
+在该模块用户可以发送一些动态，动态可以被该系统的所有被用户看到，
+//还可以发送一些私密动态，可以将私密动态设置为仅自己可看或仅好友可看。加一个status状态就可以了
+可以对别人发的动态进行评论。
+
+好友推荐模块：
+通过分析用户过去发送的历史动态随机的向该用户推荐好友
+
+动态表
+	user_id
+	user_name
+	share_id //动态id
+	share_msg  //文字信息
+	image_uri //存放的是图片的路径
+	share_status  //该动态的状态， 有0， 1 ， -1几种状态  0：未加载状态   1：已加载状态  -1：回收站状态
+	share_tag  //动态的分类，是一个字符串，不同的分类之间用#分隔
+	endorse_count  //点赞数 
+	//people_talk //用户评论  存放的是json格式字符串 ： 键对应nick_name，值对应评论的话
+	share_creatime  //动态发布时间
+		
+点赞表  //若在该表中没有根据share_id和user_id 查询到记录 动态表的endorse_count++
+		//若查询到记录，则endorse_count--;然后在该表中添加该信息
+	greet_id
+	share_id
+	user_id
+	
+评论表
+	talk_id
+	share_id
+	talk_user_id
+	talk_user_name // 评论用户
+	talk_info //评论内容
+	talk_creatime   //评论发布时间
+	
+	URIEncoding="UTF-8"
+	
+	<Context docBase="C:\Program Files\apache-tomcat-7.0.76\webapps\findfriend" path="/findfriend" />
+	<Context docBase="D:\upload" path="/findfriend/upload" />
+	
+	眼药水可以用到4月12号
+	
+	
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

@@ -97,9 +97,56 @@
     			send_talk(context, share_id, talk_info);
     		})
     		
-    		//TODO删除该用户发过的某个动态
+    		//删除该用户发过的某个评论
     		$("#share_list").on("click", ".delete_talk", function(){
-    			alert("dfdddddddddd");
+    			var talk_id = $(this).parent().attr("id");
+    			talk_id = talk_id.substr(8);
+    			deleteTalk(context, talk_id);
+    		});
+    		
+    		//加载当前用户评论过的动态
+    		$("#user_talked_share").click(function(){
+    			$("#share_list").empty();
+    			loadTalkedShare(context, user_id, index, user_name);
+    		});
+    		
+    		//加载当前用户赞过的动态
+    		$("#user_greated_share").click(function(){
+    			$("#share_list").empty();
+    			loadGreatShare(context, user_id, index, user_name);
+    		});
+    		
+    		//当前用户删除自己曾经发过的某个动态，先将该动态放入回收站
+    		$("#share_list").on("click",".delete_share", function(){
+    			var share_id = $(this).parents("li").data("share_id");
+    			Share2Recycle(context, user_id, share_id);
+    		});
+    		
+    		//点击回收站按钮加载回收站动态
+    		$("#recycle_share").click(function(){
+    			$("#share_list").empty();
+    			loadRecycleShare(context, user_id, user_name);
+    		});
+    		
+    		//从回收站撤回动态
+    		$("#share_list").on("click", ".reset_share", function(){
+    			var share_id = $(this).parents("li").data("share_id");
+    			resetShare(context, user_id, share_id);
+    		});
+    		
+    		//从回收站彻底删除动态
+    		$("#share_list").on("click", ".real_delete_share", function(){
+    			var share_id = $(this).parents("li").data("share_id");
+    			$.ajax({
+    				url:context + "/share/deleteShare",
+    				type:"post",
+    				dataType:"json",
+    				data:{"user_id" : user_id, "share_id" : share_id},
+    				success:function(result){
+    					alert(result.msg);
+    					$("#recycle_share").trigger("click");
+    				}
+    			});
     		});
     		
     	});
@@ -168,6 +215,9 @@
                     </div>
                      <div class="tab-nav-content">
                         <a id="send_share" href="javascript:;" class="content-tab active">+</a>
+                    </div>
+                    <div class="tab-nav-content">
+                        <image id="recycle_share" src="../image/recycle.png" class="content-tab active" width="20" higth="20"></image>
                     </div>
                 </nav>
                 <button class="tab-btn btn-right"><i class="icon-font">&#xe60f;</i></button>

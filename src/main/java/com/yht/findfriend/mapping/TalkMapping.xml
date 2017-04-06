@@ -2,20 +2,42 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.yht.findfriend.dao.TalkDao">
 
-    <insert id="sendTalk" parameterType="com.yht.findfriend.entity.Talk">
+    <insert id="sendTalk" parameterType="com.yht.findfriend.entity.Talk" useGeneratedKeys="true" keyProperty="talk_id">
     	insert into talk 
     		(share_id, talk_user_id, talk_user_name, talk_info, talk_creatime)
     	values
     		(#{share_id}, #{talk_user_id}, #{talk_user_name}, #{talk_info}, #{talk_creatime})	
     </insert>
     
-    <select id="queryTalk" parameterType="int" resultType="com.yht.findfriend.entity.Talk">
+    <select id="queryTalk" parameterType="com.yht.findfriend.entity.Talk" resultType="com.yht.findfriend.entity.Talk">
     	select talk_id, share_id, talk_user_id, talk_user_name, talk_info, talk_creatime
     	from talk
-    	where share_id = #{share_id}
+    	<where>
+    		<if test="share_id != 0">
+	    		share_id = #{share_id}
+	    	</if>
+	    	<if test="talk_user_id != 0">
+	    		and talk_user_id = #{talk_user_id}
+	    	</if>
+    	</where>
     	order by talk_creatime desc
     </select>
     
+    <delete id="deleteTalk" parameterType="com.yht.findfriend.entity.Talk">
+    	delete from talk
+    	<!-- where talk_id = #{talk_id} -->
+    	<where>
+    		<if test="talk_id != 0">
+    			talk_id = #{talk_id}
+    		</if>
+    		<if test="share_id != 0">
+	    		and share_id = #{share_id}
+	    	</if>
+	    	<if test="talk_user_id != 0">
+	    		and talk_user_id = #{talk_user_id}
+	    	</if>
+    	</where>
+    </delete>
     
     
     

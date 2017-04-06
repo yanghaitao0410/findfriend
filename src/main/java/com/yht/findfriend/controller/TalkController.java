@@ -30,5 +30,27 @@ public class TalkController {
 		return resultMap;
 	}
 	
+	/**
+	 * 根据评论id删除评论
+	 * @param talk_id
+	 * @return
+	 */
+	@RequestMapping("deleteTalk")
+	@ResponseBody
+	public ResultMap deleteTalk(Talk talk){
+		ResultMap resultMap = talkService.deleteTalk(talk);
+		return resultMap;
+	}
 	
 }
+
+
+
+
+
+
+
+
+
+
+

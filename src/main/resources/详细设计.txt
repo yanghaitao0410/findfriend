@@ -1,0 +1,227 @@
+
+登录功能
+点击登陆按钮发送请求
+findfriend/account/login
+->DispatcherServlet->HandlerMapping
+->AccountContruller ->checkAccount(User user, HttpServlet response) 
+->AccountService(impl)->AccountDao->checkAccount(user.getUserName, user.getPwd)
+SELECT user_id from user where user_name = #{user_name} AND user_pwd = #{user_pwd};
+//将用户名存入cookie
+if(user_id != null){
+//只有密码是正确的才将密码存入cookie
+	return "index";
+}
+//将错误提示信息放入response
+return "login";
+
+
+注册功能
+
+输入完用户名后检查是否已经被注册过
+
+
+输入必要信息后点击注册按钮后发送请求
+findfriend/account/regiest
+-->DispatcherServlet-->HandlerMapping
+--> AccountContruller -->regiestAccount(User user, HttpServlet response)
+-->AccountService(impl) -->AccountDao-->regiest(user.getUserName, user.getPwd, user.getUserInfo);
+insert into user (user_name, user_pwd, user_info)values(#{user_name}, #{user_pwd}, #{user_info})
+
+
+打开主界面后加载数据：
+	1.加载当前用户的好友分组
+	2.在内容区加载热门动态（动态的热门程度根据用户的点赞数来排序）一次加载10条
+
+
+点击好友的小人加载好友信息：====(“后台已完成”)====
+findfriend/friend/loadfriendinfo
+-->DispatcherServlet -- > HandlerMapping
+-->friendController -->loadfriendinfo(int user_id, int friend_id)
+-->friendServlerImpl -->friendDao-->loadFriendInfo(String user_id, String friend_id)
+select friend_name, friend_sex, friend_phonenum, nick_name from user_friend where user_id = #{user_id} and friend_id=#{friend_id}//该user_id 实际是friend_id
+select hobby_name from 	user_hobby where user_id = #{user_id}
+
+
+点击转移按钮将好友重新分组：==========(后台开发已完成)===========
+findfriend/friend/groupchange
+-->DispatcherServlet -->HandlerMapping
+-->friendController -->groupChange(int user_id,int friend_id, String group_name)
+-->friendServiceImpl:
+	friendDao -->queryGroup_id(group_name)
+		  -->changeGroup(group_name, parent_id)
+select group_id from user_group where user_id=#{user_id} and group_name=#{group_name}
+update user_friend set parent_id=#{parent_id} , group_name = #{group_name} where user_id = #{user_id} and friend_id = #{friend_id}
+
+
+
+点击好友上的差号删除好友： ===========（后台开发已完成）==========
+/findfriend/friend/deleteFriend
+-->DispatcherServlet -->HandlerMapping
+-->friendController -->deleteFriend(int user_id, int friend_id)
+-->friendServiceImpl:
+	friendDao -->deleteFriend(user_id, friend_id)
+delete from user_friend where user_id = #{user_id} and friend_id=#{friend_id}
+
+查找用户（为添加好友做准备）：
+可以通过用户名或昵称两种方式来查询==========（后台开发已完成）============
+-->DispatcherServlet -->HandlerMapping
+-->friendController -->searchUser(String user_name, String nick_name)
+-->friendServiceImpl -->friendDao :searchFriend(String user_name, String nick_name)
+select user_id from user 
+<where>
+	<if test="user_name != null">user_name = #{user_name}</if>
+	<if test="nick_name != null">and nick_name = #{nick_name}</if>
+</where>
+
+添加好友： ==========(后台开发已完成)===========
+-->DispatcherServlet -->HandlerMapping
+-->friendController -->addFriend(String user_id, String friend_id, String group_name, User user)
+-->friendServiceImpl -->friendDao -->(先将group_id查询出来)
+addFriend(String user_id, String friend_id, String group_name,int group_id) //真正编码的时候需要封装
+insert into user_friend (user_id, friend_id, parent_id, friend_name,group_name)
+values(#{user_id}, #{friend_id}, #{group_id}, #{friend_name}, #{group_name})
+
+
+个人信息编辑：=========(后台开发已完成)==========
+-->DispatcherServlet -->HandlerMapping
+-->accountController -->editUserInfo(User user)
+-->accountServcieImpl -->accountDao -->editUserInfo(User user)
+update user <set>
+				<if test="user_sex != null">user_sex = #{user_sex}</if>
+				<if test="user_phone_num != null">,user_phone_num = #{user_phone_num}</if>
+				<if test="nick_name != null">,nick_name = #{nick_name}</if>
+			</set>
+where user_id = #{user_id}
+
+
+查询分组：（根据组名查询）====(“后台已完成”)======
+
+添加分组：（组名不能与原有的组名重复）====(“后台已完成”)======
+-->DispatcherServlet -->HandlerMapping
+-->friendController -->addGroup(String user_id, String group_name)
+-->friendServiceImpl -->friendDao -->addGroup(id, group_name)
+
+更改分组名称：user_friend表和group表都要更改 ====(“后台已完成”)======
+-->DispatcherServlet -->HandlerMapping
+-->friendController -->GroupRename(String user_id, String old_group_name, String new_group_name) 
+-->friendServiceImpl --> friendDao -->groupRename(user_id, old_group_name, new_group_name)
+update user_friend 
+set group_name = #{new_group_name} 
+where user_id = #{user_id} and group_name = #{old_group_name}
+
+update user_group 
+set group_name = #{new_group_name}
+where user_id = #{user_id} and group_name = #{old_group_name}
+
+删除分组：（只要该分组下还有好友就不能删除该分组）====(“后台已完成”)======
+-->DispatcherServlet -->HandlerMapping
+-->friendController -->DeleteGroup(String user_id, String group_name)
+-->friendServiceImpl -->friendDao-->checkFriendAtGroup(String user_id, String group_name)
+									deleteGroup(String user_id, String group_name)
+select count(parent_id) from user_friend where user_id = #{user_id} and group_name = #{group_name}
+delete from user_group where user_id = #{user_id} and group_name = #{group_name}									
+ 
+文字信息存放到数据库中，图片信息存放到tomcat服务器，在数据库中存放该图片的路径 
+ 
+发表动态： ========（开发已完成）==========
+用户在动态发布页面编写文字，选择图片，添加分类
+点击发布按钮后向服务器提交一个动态表单，
+在服务器为每一个用户创建一个文件夹，文件夹名为user_id,用户所发表的动态图片都放在改用户对应的文件夹下
+图片的名称的格式为：创建时间_图片名称.jpg
+先将图片信息用输出流写出到服务器，然后文字信息和图片的路径保存在数据库中，然后返回json字符串
+
+加载个人动态：=====开发已完成=====
+根据user_id在动态表中查出动态信息 (一次请求加载10条动态，根据创建时间降序排列)，
+封装在一个List中返回 
+
+加载热门动态：=======开发已完成=======
+根据动态表中查出动态信息(将当前用户自己的动态刨除，一次加载10条动态，根据点赞数降序排列)，
+封装在一个List中返回
+
+加载所有好友动态：======开发已完成=======
+先在数据库中查出当前用户的所有好友，然后根据这些好友id在动态表中查出动态，
+一次加载5条，根据点赞数降序排列 
+
+加载指定好友动态：=======开发已完成=======
+点击该好友后加载该用户发布的动态，一次加载5条，按时间降序排列
+
+加载动态评论信息： ======开发已完成====
+在加载动态的同时加载对应动态的评论信息封装到share的people_talk中
+
+动态点赞：=====开发已完成========
+用户点击点赞按钮后发布点赞请求，先在点赞表中查询是否该用户已经赞过，若已赞过则动态表中的endorse_count-1
+若没赞过endorse_count+1 ,在该表中添加该信息，将endorse_count返回
+
+动态评论：=======开发已完成=======
+用户点击评论按钮后在该动态下面出现评论输入框，暂时只能评论文字
+输入完毕后点击发布会将动态id, 该用户的user_name, 评论信息传到后台存入到对应的动态信息中，
+
+
+删除动态评论：（只能删除当前用户发布的评论） ======开发已完成======
+用户点击评论的删除按钮删除该评论，成功后重新加载该tab页
+
+加载当前用户评论过的动态： =======开发已完成=========
+用户点击"评论过的动态"按钮加载对应的动态
+在评论表中查询出当前用户评论过的动态id，然后根据动态id查询出对应的动态
+
+加载当前用户赞过的动态：=========开发已完成==========
+用户点击"赞过的动态按钮"加载对应的动态
+
+
+删除个人动态：先将要删除的动态放入回收站 ========开发已完成===========
+根据动态id 和用户id将动态表中对应的那条动态的status 改为1
+
+加载回收站的动态：========开发已完成===========
+根据用户id和status=1将动态加载
+
+撤回：========开发已完成===========
+根据动态id 和用户id将动态表中对应的那条动态的status 改为0
+
+彻底删除动态：========开发已完成===========
+先将要删除的动态的信息从服务器中加载出来，删除服务器中保存的图片，然后删除该条数据
+
+
+
+查看个人信息：
+点击用户名加载个人信息
+
+添加好友后好友界面提示：//TODO
+在好友推荐框提示是否也添加该用户为好友
+
+拼接动态tag:
+
+//TODO
+点击删除动态按钮弹出确认删除框，用户确定删除后再删除动态
+
+
+推荐好友：
+方式1：在用户发表动态后根据用户发布的分类推荐
+方式2：用户在浏览热门动态时，根据用户点赞的动态的分类推荐
+方式3：用户在搜索好友添加成功后，根据好友和当前用户的爱好的交集推荐
+
+页面功能;
+点击不同的动态tab切换选中样式 背景图片和文字的颜色调换
+点击发布动态链接在主界面载入upload.jsp
+"动态"样式
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

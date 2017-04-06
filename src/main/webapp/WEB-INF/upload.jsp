@@ -55,6 +55,7 @@
 		<!-- 上传文件2：<input type="file" name="file2" /><br/> -->
 		<input id="share_btn" type="button" value="提交" />
 	</form>
+	<a href="${pageContext.request.contextPath }/account/redirectIndex">返回</a>
 	<%-- <img alt="" src="<%=request.getContextPath()%>/upload/2/0/5494db00-fca1-4a16-868e-33b8fe4f6d4amoon_bg.jpg">	 --%>
 </body>
 </html>
