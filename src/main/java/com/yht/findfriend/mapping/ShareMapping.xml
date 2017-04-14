@@ -92,7 +92,7 @@
     		#{shareORGreat_id}
     	</foreach>
     	and share_status = 0
-    	<!-- index会用foreach中的 -->
+    	<!-- index会用foreach中的,limit中的参数不能使用index作为参数名 -->
     	limit #{index2}, 5
     </select>
     

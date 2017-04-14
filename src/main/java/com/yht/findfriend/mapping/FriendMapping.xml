@@ -21,7 +21,7 @@
 
 	<select id="QueryFriendInfo" parameterType="map" resultType="com.yht.findfriend.entity.Friend">
 		select 
-			friend_name, friend_sex, friend_phonenum, nick_name 
+			friend_id, friend_name, friend_sex, friend_phonenum, nick_name 
 		from 
 			user_friend 
 		where 

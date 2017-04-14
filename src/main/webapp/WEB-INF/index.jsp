@@ -36,7 +36,7 @@
     		
 			//点击热门动态按钮
     		$("#hot_share").click(function(){
-    			$("#share_list").empty();
+    			
     			loadHotShare(user_id, index, context, user_name);
     		});
     		
@@ -47,12 +47,20 @@
     		
     		//点击个人动态链接加载个人动态
     		$("#user_share").click(function(){
+    			$("#show_share_area").show();
+    			$("#edit_group_div").hide();
+    			$("#user_info").hide();
+    			$("#change_group_div").hide();
     			$("#share_list").empty();
     			loadSelfShare(context, user_id, user_name , index);
     		});
     		
     		//点击好友动态链接加载好友动态
     		$("#friend_share").click(function(){
+    			$("#show_share_area").show();
+    			$("#edit_group_div").hide();
+    			$("#user_info").hide();
+    			$("#change_group_div").hide();
     			$("#share_list").empty();
     			loadFriendShare(user_id, index, context, user_name);
     		});
@@ -60,7 +68,7 @@
     		//点击退出按钮后跳转到登陆页面
     		$("#exit").click(function(){
     			window.location.href= context+"/account/exitUser";
-    			//清除session
+    			//清除session 不能在这里清除session jsp脚本是全局的
     			<%-- <%
     			System.out.print("exit:dfgdsfgdfsgds");
     				HttpSession sess = request.getSession();
@@ -73,6 +81,10 @@
     		
     		//点击好友后加载该好友动态
     		$("#friend_list").on("click", "span", function(){
+    			$("#show_share_area").show();
+    			$("#edit_group_div").hide();
+    			$("#user_info").hide();
+    			$("#change_group_div").hide();
     			$("#share_list").empty();
     			var friend_id = $(this).parents("li").attr("id");
     			loadSpecificShare(context, friend_id, index, user_name);
@@ -106,12 +118,20 @@
     		
     		//加载当前用户评论过的动态
     		$("#user_talked_share").click(function(){
+    			$("#show_share_area").show();
+    			$("#edit_group_div").hide();
+    			$("#user_info").hide();
+    			$("#change_group_div").hide();
     			$("#share_list").empty();
     			loadTalkedShare(context, user_id, index, user_name);
     		});
     		
     		//加载当前用户赞过的动态
     		$("#user_greated_share").click(function(){
+    			$("#show_share_area").show();
+    			$("#edit_group_div").hide();
+    			$("#user_info").hide();
+    			$("#change_group_div").hide();
     			$("#share_list").empty();
     			loadGreatShare(context, user_id, index, user_name);
     		});
@@ -124,6 +144,10 @@
     		
     		//点击回收站按钮加载回收站动态
     		$("#recycle_share").click(function(){
+    			$("#show_share_area").show();
+    			$("#edit_group_div").hide();
+    			$("#user_info").hide();
+    			$("#change_group_div").hide();
     			$("#share_list").empty();
     			loadRecycleShare(context, user_id, user_name);
     		});
@@ -137,17 +161,131 @@
     		//从回收站彻底删除动态
     		$("#share_list").on("click", ".real_delete_share", function(){
     			var share_id = $(this).parents("li").data("share_id");
-    			$.ajax({
-    				url:context + "/share/deleteShare",
-    				type:"post",
-    				dataType:"json",
-    				data:{"user_id" : user_id, "share_id" : share_id},
-    				success:function(result){
-    					alert(result.msg);
-    					$("#recycle_share").trigger("click");
-    				}
-    			});
+    			deleteShare(context, user_id, share_id);
     		});
+    		
+    		//点击个人信息链接加载个人信息
+    		$("#user_info_a").click(function(){
+    			$("#user_info").show();
+    			$("#show_share_area").hide();
+    			$("#edit_group_div").hide();
+    			$("#change_group_div").hide();
+    			queryUserInfo(context, user_id);
+    		});
+    		
+    		//点击个人信息的加号增加动态输入框
+    		$("#user_info_list").on("click", ".create_new_hobby",function(){
+    			var add_hobby = "<div><input class='user_hobby' type='text'><a class='delete_hobby' href='javascript:;'>X</a></br></div>";
+    			$(".hobby_div").append(add_hobby);
+    		});
+    		
+    		//删除一个爱好输入框
+    		$("#user_info_list").on("click", ".delete_hobby", function(){
+    			$(this).parent().remove();
+    		});
+    		
+    		//修改个人信息后点击提交按钮更新信息
+    		$("#user_info_list").on("click", ".edit_submit", function(){
+    			var nick_name = $(".nick_name").val().trim();
+    			var user_sex = $(".user_sex:checked").val().trim();
+    			var user_phone_num = $(".user_phone_num").val().trim();
+    			var $hobbys = $(".user_hobby");
+    			var string_hobby ="";
+				
+    			$hobbys.each(function() {
+    				var $this = $(this);
+    				string_hobby += $this.val() + ",";
+    			});
+    			updateUserInfo(user_id, nick_name, user_sex, user_phone_num, string_hobby);
+    		});
+    		
+    		//点击好友的小人加载好友信息
+    		$("#friend_list").on("click", ".friend_info", function(){
+    			$("#user_info").show();
+    			$("#show_share_area").hide();
+    			$("#change_group_div").hide();
+    			$("#edit_group_div").hide();
+    			$("#user_info_list").empty();
+    			var friend_id = $(this).parents("li").attr("id");
+    			loadFriendInfo(context, user_id, friend_id);
+    		});
+    		
+    		//点击箭头图标加载重新分组界面
+    		$("#friend_list").on("click", ".change_group", function(){
+    			$("#change_group_div").show();
+    			$("#show_share_area").hide();
+    			$("#user_info").hide();
+    			$("#edit_group_div").hide();
+    			var friend_id = $(this).parents("li").attr("id");
+    			$(".sure_group").data("friend_id", friend_id);
+    			loadGroupSelect(context, user_id);
+    		});
+    		
+    		//点击确认按钮后将用户移动到该分组下
+    		$(".sure_group").click(function(){
+    			var group_name = $("#group_select").select().val();
+    			var friend_id = $(".sure_group").data("friend_id");
+    			changeGroup (context, user_id, friend_id, group_name);
+    		});
+    		
+    		//点击新建分组按钮
+    		$(".add_group").click(function(){
+    			$(".group_name_div").find("input").val("");
+    			$(".group_name_div").toggle();	
+    			$(".wrong_group_msg").hide();
+    			$(".right_group_msg").hide();
+    		});
+			
+    		
+    		//输入组名焦点移出事件
+    		$(".group_name_div input").blur(function(){
+    			
+    			var group_name = $(this).val().trim();
+    			//var group_name = $(".group_name_div").find("input").val().trim();
+    			if(group_name == ""){
+    				$(".wrong_group_msg").html("组名不能为空！！！").show();
+    				return;
+    			}else{ //检查该组名是否已经创建
+    				checkGroup(context, user_id, group_name);
+    			}
+    		});
+    		
+    		//点击编辑按钮加载修改组名页面
+    		$("#friend_list").on("click", ".edit_group_name", function(){
+    			var group_name = $(this).nextAll("a").html();
+    			$("#change_group_div").hide();
+    			$("#show_share_area").hide();
+    			$("#user_info").hide();
+    			$("#edit_group_div").show();
+    			$(".edit_group_input").val(group_name);
+    			$(".edit_group_button").data("old_group_name", group_name);
+    		});
+    		
+    		//点击确定创建按钮添加组名
+    		$(".sure_create_group").click(function(){
+    			var display = $(".right_group_msg").css("display");
+    			if(display == 'none'){
+    				$(".wrong_group_msg").html("组名不合法！！").show();
+    				return;
+    			}else{ //只有right_group_msg 显示的时候才真正创建组名
+    				addGroup (context, user_id);
+    			}
+    			
+    		});
+    		
+    		//点击确认更改按钮修改组名
+    		$(".edit_group_button").click(function(){
+    			var group_name = $(this).prev("input").val();
+    			var old_group_name = $(this).data("old_group_name");
+    			groupRename(context, user_id, old_group_name, group_name);
+    		});
+    		
+    		//点击差号删除分组
+    		$("#friend_list").on("click", ".delete_group_image", function(){
+    			var group_name = $(this).next("a").html();
+    			checkGroupToRename (context, user_id, group_name);
+    		});
+    		
     		
     	});
     </script>
@@ -163,7 +301,7 @@
 				<li class="header-bar-nav">
 					<a href="javascript:;">${user_name}<i class="icon-font" style="margin-left:5px;">&#xe60c;</i></a>
 					<ul class="header-dropdown-menu">
-						<li><a href="javascript:;">个人信息</a></li>
+						<li><a id="user_info_a" href="javascript:;">个人信息</a></li>
 						<!-- <li><a href="javascript:;">切换账户</a></li> -->
 						<li><a id="exit" href="javascript:;">退出</a></li>
 					</ul>
@@ -222,13 +360,43 @@
                 </nav>
                 <button class="tab-btn btn-right"><i class="icon-font">&#xe60f;</i></button>
 			</div>
-			<div class="layout-main-body">
+			<div id="show_share_area" class="layout-main-body">
 			
 				<ul id="share_list">
 					
 				</ul>
 				<!-- <iframe class="body-iframe" name="iframe0" width="100%" height="99%" src="home.html" frameborder="0" data-id="home.html" seamless></iframe> -->
 			</div>
+			<div id="user_info" class="layout-main-body" style="display: none;">
+				<h1>
+					个人信息
+				</h1>
+				<ul id='user_info_list' ></ul>
+			</div>
+			<div id="change_group_div" class="layout-main-body" style="display: none;">
+				<h1>
+					重新分组
+				</h1>
+				<select id="group_select">
+					
+				</select>
+				<button class="add_group">新建分组</button> <div class="group_name_div" style="display: none"><input class="group_name_input" type="text" ><button class="sure_create_group">确定创建</button></div></br>
+				<div class="wrong_group_msg" style="color: red;display: none"></div>
+				<div class="right_group_msg" style="color: green;display: none"></div>
+				
+				<button class="sure_group">确定</button>
+				
+			</div>
+			<div id=edit_group_div class="layout-main-body" style="display: none;">
+				<h1>
+					更改组名
+				</h1>
+				<input class="edit_group_input" type="text" >
+				<button class="edit_group_button">确认更改</button>
+				<div class="wrong_group_msg" style="color: red;display: none"></div>
+				<div class="right_group_msg" style="color: green;display: none"></div>
+			</div>
+			
 		</section>
 		<div class="layout-footer">@2017 0.1 mycodes</div>
 	</div>

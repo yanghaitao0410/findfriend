@@ -121,4 +121,18 @@ public class AccountController {
 		return "login";
 	}
 	
+	@RequestMapping("queryUserInfo")
+	@ResponseBody
+	public ResultMap queryUserInfo(String user_id){
+		ResultMap resultMap = userService.queryUserInfo(user_id);
+		return resultMap;
+	}
+	
+	@RequestMapping("updateUserInfo")
+	@ResponseBody
+	public ResultMap updateUserInfo(User user, String string_hobby){
+		ResultMap resultMap = userService.updateUserInfo(user, string_hobby);
+		return resultMap;
+	}
+	
 }

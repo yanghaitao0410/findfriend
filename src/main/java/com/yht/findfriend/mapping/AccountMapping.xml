@@ -41,4 +41,26 @@
     	where user_id = #{user_id}
     </select>
     
+    <select id="queryUserInfo" resultType="com.yht.findfriend.entity.User">
+    	select user_id, user_name, user_sex, user_phone_num, nick_name
+    	from user
+    	where user_id = #{user_id}
+    </select>
+    
+    <update id="updateUserInfo" parameterType="com.yht.findfriend.entity.User">
+    	update user
+    	<set>
+    		<if test="nick_name != null">
+    			nick_name = #{nick_name},
+    		</if>
+    		<if test="user_sex != null">
+    			user_sex = #{user_sex},
+    		</if>
+    		<if test="user_phone_num != null">
+    			user_phone_num = #{user_phone_num}
+    		</if>
+    	</set>
+    	where user_id = #{user_id}
+    </update>
+    
 </mapper>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yht.findfriend.dao.HobbyDao">
+    
+    <select id="queryUserHobby" resultType="com.yht.findfriend.entity.Hobby">
+    	select hobby_id, hobby_name
+    	from user_hobby
+    	where user_id = #{user_id}
+    </select>
+    
+    <delete id="deleteHobby">
+    	delete from user_hobby
+    	where user_id = #{user_id}
+    </delete>
+    
+    <insert id="insertHobby">
+    	insert into user_hobby
+    		(user_id, hobby_name)
+    	values
+    		(#{user_id}, #{hobby_name})
+    </insert>
+    
+</mapper>

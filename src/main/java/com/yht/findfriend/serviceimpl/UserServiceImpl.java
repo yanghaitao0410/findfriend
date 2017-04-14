@@ -1,13 +1,16 @@
 package com.yht.findfriend.serviceimpl;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
+import com.yht.findfriend.dao.HobbyDao;
 import com.yht.findfriend.dao.UserDao;
+import com.yht.findfriend.entity.Hobby;
 import com.yht.findfriend.entity.ResultMap;
 import com.yht.findfriend.entity.User;
 import com.yht.findfriend.service.UserService;
@@ -16,10 +19,13 @@ import com.yht.findfriend.service.UserService;
 public class UserServiceImpl implements UserService {
 
 	@Resource
-	private UserDao dao;
+	private UserDao userDao;
+	
+	@Resource
+	private HobbyDao hobbyDao;
 	
 	public ResultMap findUserByUserName(String userName) {
-		User user = dao.findUserByUserName(userName);
+		User user = userDao.findUserByUserName(userName);
 		ResultMap result = new ResultMap();
 		if(user != null){
 			result.setStatus(1);
@@ -33,7 +39,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public ResultMap registerAccount(User user) {
-		int account = dao.registerAccount(user);
+		int account = userDao.registerAccount(user);
 //		System.out.println("account:" +account);
 		if(1 == account){
 			ResultMap result = new ResultMap();
@@ -49,7 +55,7 @@ public class UserServiceImpl implements UserService {
 		Map<String, String> data = new HashMap<String, String>();
 		data.put("user_name", user_name);
 		data.put("user_pwd", user_pwd);
-		User realUser = dao.findUserByNameAndPwd(data);
+		User realUser = userDao.findUserByNameAndPwd(data);
 		ResultMap result = new ResultMap();
 		if(realUser != null){
 			result.setStatus(0);
@@ -64,7 +70,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public ResultMap editAccountInfo(User user) {
-		int count = dao.editAccountInfo(user);
+		int count = userDao.editAccountInfo(user);
 		ResultMap result = new ResultMap();
 		if(count == 1){
 			result.setStatus(0);
@@ -78,7 +84,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public ResultMap queryUserName(int user_id) {
-		String user_name = dao.getUser_id(user_id);
+		String user_name = userDao.getUser_id(user_id);
 //		System.out.println("user_name:" + user_name);
 		ResultMap resultMap = new ResultMap();
 //		if(user_name != null){
@@ -89,6 +95,48 @@ public class UserServiceImpl implements UserService {
 			resultMap.setStatus(1);
 			resultMap.setMsg("查询用户名失败");
 		}*/
+		return resultMap;
+	}
+
+	@Override
+	public ResultMap queryUserInfo(String user_id) {
+		ResultMap resultMap = new ResultMap();
+		User user = userDao.queryUserInfo(user_id);
+		List<Hobby> hobbys = hobbyDao.queryUserHobby(user_id);
+		Map <String, Object> data = new HashMap<String, Object>();
+		data.put("user", user);
+		data.put("hobby", hobbys);
+		if(user != null){
+			resultMap.setStatus(0);
+			resultMap.setMsg("查询用户信息成功");
+			resultMap.setData(data);
+		}else{
+			resultMap.setStatus(1);
+			resultMap.setMsg("查无此人");
+		}		
+		return resultMap;
+	}
+
+	@Override
+	public ResultMap updateUserInfo(User user, String string_hobby) {
+		int count = userDao.updateUserInfo(user);
+		if(string_hobby != null){
+			count += hobbyDao.deleteHobby(user.getUser_id());
+			String[] hobbys = string_hobby.split(",");
+			for (String hobby : hobbys) {
+				count +=hobbyDao.insertHobby(user.getUser_id(), hobby);
+			}
+		}
+		ResultMap resultMap = new ResultMap();
+		if(count > 0){
+			resultMap.setStatus(0);
+			resultMap.setMsg("更新用户信息成功！！！");
+		}else{
+			resultMap.setStatus(1);
+			resultMap.setMsg("更新用户信息失败！！！");
+		}
+		
+		
 		return resultMap;
 	}
 

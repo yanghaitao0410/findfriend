@@ -81,8 +81,13 @@ public class FriendServiceImpl implements FriendService {
 
 	@Override
 	public ResultMap changeGroup(Friend friend) {
-		int group_id = dao.queryGroupIdByName(friend.getGroup_name(), friend.getUser_id());
-		friend.setParent_id(group_id);
+		if("no_group".equals(friend.getGroup_name())){
+			friend.setParent_id(0);
+		}else{
+			int group_id = dao.queryGroupIdByName(friend.getGroup_name(), friend.getUser_id());
+			friend.setParent_id(group_id);
+		}
+		
 		int count = dao.changeGroup(friend);
 		ResultMap result = new ResultMap();
 		if(count == 1){

@@ -17,5 +17,9 @@ public interface UserService {
 	public ResultMap editAccountInfo(User user);
 
 	public ResultMap queryUserName(int user_id);
+
+	public ResultMap queryUserInfo(String user_id);
+
+	public ResultMap updateUserInfo(User user, String string_hobby);
 	
 }
