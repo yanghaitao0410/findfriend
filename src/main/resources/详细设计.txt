@@ -32,8 +32,22 @@ insert into user (user_name, user_pwd, user_info)values(#{user_name}, #{user_pwd
 	1.加载当前用户的好友分组
 	2.在内容区加载热门动态（动态的热门程度根据用户的点赞数来排序）一次加载10条
 
+查看个人信息：========开发已完成===========
+点击加载信息按钮加载个人信息
 
-点击好友的小人加载好友信息：====(“后台已完成”)====
+个人信息编辑：=========(开发已完成)==========
+-->DispatcherServlet -->HandlerMapping
+-->accountController -->editUserInfo(User user)
+-->accountServcieImpl -->accountDao -->editUserInfo(User user)
+update user <set>
+				<if test="user_sex != null">user_sex = #{user_sex}</if>
+				<if test="user_phone_num != null">,user_phone_num = #{user_phone_num}</if>
+				<if test="nick_name != null">,nick_name = #{nick_name}</if>
+			</set>
+where user_id = #{user_id}
+	
+
+点击好友的小人加载好友信息：====(“开发已完成”)====
 findfriend/friend/loadfriendinfo
 -->DispatcherServlet -- > HandlerMapping
 -->friendController -->loadfriendinfo(int user_id, int friend_id)
@@ -42,7 +56,7 @@ select friend_name, friend_sex, friend_phonenum, nick_name from user_friend wher
 select hobby_name from 	user_hobby where user_id = #{user_id}
 
 
-点击转移按钮将好友重新分组：==========(后台开发已完成)===========
+点击转移按钮将好友重新分组：==========(开发已完成)===========
 findfriend/friend/groupchange
 -->DispatcherServlet -->HandlerMapping
 -->friendController -->groupChange(int user_id,int friend_id, String group_name)
@@ -82,26 +96,14 @@ insert into user_friend (user_id, friend_id, parent_id, friend_name,group_name)
 values(#{user_id}, #{friend_id}, #{group_id}, #{friend_name}, #{group_name})
 
 
-个人信息编辑：=========(后台开发已完成)==========
--->DispatcherServlet -->HandlerMapping
--->accountController -->editUserInfo(User user)
--->accountServcieImpl -->accountDao -->editUserInfo(User user)
-update user <set>
-				<if test="user_sex != null">user_sex = #{user_sex}</if>
-				<if test="user_phone_num != null">,user_phone_num = #{user_phone_num}</if>
-				<if test="nick_name != null">,nick_name = #{nick_name}</if>
-			</set>
-where user_id = #{user_id}
+查询分组：（根据组名查询）====(“开发已完成”)======
 
-
-查询分组：（根据组名查询）====(“后台已完成”)======
-
-添加分组：（组名不能与原有的组名重复）====(“后台已完成”)======
+添加分组：（组名不能与原有的组名重复）====(“开发已完成”)======
 -->DispatcherServlet -->HandlerMapping
 -->friendController -->addGroup(String user_id, String group_name)
 -->friendServiceImpl -->friendDao -->addGroup(id, group_name)
 
-更改分组名称：user_friend表和group表都要更改 ====(“后台已完成”)======
+更改分组名称：user_friend表和group表都要更改 ====(“开发已完成”)======
 -->DispatcherServlet -->HandlerMapping
 -->friendController -->GroupRename(String user_id, String old_group_name, String new_group_name) 
 -->friendServiceImpl --> friendDao -->groupRename(user_id, old_group_name, new_group_name)
@@ -113,7 +115,7 @@ update user_group
 set group_name = #{new_group_name}
 where user_id = #{user_id} and group_name = #{old_group_name}
 
-删除分组：（只要该分组下还有好友就不能删除该分组）====(“后台已完成”)======
+删除分组：（只要该分组下还有好友就不能删除该分组）====(“开发已完成”)======
 -->DispatcherServlet -->HandlerMapping
 -->friendController -->DeleteGroup(String user_id, String group_name)
 -->friendServiceImpl -->friendDao-->checkFriendAtGroup(String user_id, String group_name)
@@ -182,8 +184,7 @@ delete from user_group where user_id = #{user_id} and group_name = #{group_name}
 
 
 
-查看个人信息：
-点击用户名加载个人信息
+
 
 添加好友后好友界面提示：//TODO
 在好友推荐框提示是否也添加该用户为好友
