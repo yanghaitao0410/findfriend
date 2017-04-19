@@ -68,7 +68,7 @@ update user_friend set parent_id=#{parent_id} , group_name = #{group_name} where
 
 
 
-点击好友上的差号删除好友： ===========（后台开发已完成）==========
+点击好友上的差号删除好友： ===========（开发已完成）==========
 /findfriend/friend/deleteFriend
 -->DispatcherServlet -->HandlerMapping
 -->friendController -->deleteFriend(int user_id, int friend_id)
@@ -77,7 +77,7 @@ update user_friend set parent_id=#{parent_id} , group_name = #{group_name} where
 delete from user_friend where user_id = #{user_id} and friend_id=#{friend_id}
 
 查找用户（为添加好友做准备）：
-可以通过用户名或昵称两种方式来查询==========（后台开发已完成）============
+可以通过用户名或昵称两种方式来查询==========（开发已完成）============
 -->DispatcherServlet -->HandlerMapping
 -->friendController -->searchUser(String user_name, String nick_name)
 -->friendServiceImpl -->friendDao :searchFriend(String user_name, String nick_name)
@@ -87,7 +87,7 @@ select user_id from user
 	<if test="nick_name != null">and nick_name = #{nick_name}</if>
 </where>
 
-添加好友： ==========(后台开发已完成)===========
+添加好友： ==========(开发已完成)===========
 -->DispatcherServlet -->HandlerMapping
 -->friendController -->addFriend(String user_id, String friend_id, String group_name, User user)
 -->friendServiceImpl -->friendDao -->(先将group_id查询出来)
@@ -187,12 +187,13 @@ delete from user_group where user_id = #{user_id} and group_name = #{group_name}
 
 
 添加好友后好友界面提示：//TODO
-在好友推荐框提示是否也添加该用户为好友
+在消息提示区提示该用户添加你为好友
 
 拼接动态tag:
 
 //TODO
 点击删除动态按钮弹出确认删除框，用户确定删除后再删除动态
+删除分组也是这样的
 
 
 推荐好友：
