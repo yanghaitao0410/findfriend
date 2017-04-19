@@ -10,7 +10,6 @@
     <script type="text/javascript">
     	$(function(){
     		var session = "${sessionScope.user_id}";
-    		alert("upload:"+"${sessionScope.user_name}");
     		if(undefined == session ||"" == session){
     			window.location.href="../account/toLogin";
     		} 

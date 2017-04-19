@@ -36,7 +36,6 @@
     		
 			//点击热门动态按钮
     		$("#hot_share").click(function(){
-    			
     			loadHotShare(user_id, index, context, user_name);
     		});
     		
@@ -47,23 +46,13 @@
     		
     		//点击个人动态链接加载个人动态
     		$("#user_share").click(function(){
-    			$("#show_share_area").show();
-    			$("#edit_group_div").hide();
-    			$("#user_info").hide();
-    			$("#change_group_div").hide();
-    			$("#add_friend_div").hide();
-    			$("#share_list").empty();
+    			showShareDiv();
     			loadSelfShare(context, user_id, user_name , index);
     		});
     		
     		//点击好友动态链接加载好友动态
     		$("#friend_share").click(function(){
-    			$("#show_share_area").show();
-    			$("#edit_group_div").hide();
-    			$("#user_info").hide();
-    			$("#change_group_div").hide();
-    			$("#add_friend_div").hide();
-    			$("#share_list").empty();
+    			showShareDiv();
     			loadFriendShare(user_id, index, context, user_name);
     		});
     		
@@ -83,12 +72,7 @@
     		
     		//点击好友后加载该好友动态
     		$("#friend_list").on("click", "span", function(){
-    			$("#show_share_area").show();
-    			$("#edit_group_div").hide();
-    			$("#user_info").hide();
-    			$("#change_group_div").hide();
-    			$("#add_friend_div").hide();
-    			$("#share_list").empty();
+    			showShareDiv();
     			var friend_id = $(this).parents("li").attr("id");
     			loadSpecificShare(context, friend_id, index, user_name);
     		});
@@ -114,30 +98,23 @@
     		
     		//删除该用户发过的某个评论
     		$("#share_list").on("click", ".delete_talk", function(){
-    			var talk_id = $(this).parent().attr("id");
-    			talk_id = talk_id.substr(8);
-    			deleteTalk(context, talk_id);
+    			var realDeleteTalk = confirm("确定删除此评论？");
+    			if(realDeleteTalk == true){
+    				var talk_id = $(this).parent().attr("id");
+        			talk_id = talk_id.substr(8);
+        			deleteTalk(context, talk_id);
+    			}
     		});
     		
     		//加载当前用户评论过的动态
     		$("#user_talked_share").click(function(){
-    			$("#show_share_area").show();
-    			$("#edit_group_div").hide();
-    			$("#user_info").hide();
-    			$("#change_group_div").hide();
-    			$("#add_friend_div").hide();
-    			$("#share_list").empty();
+    			showShareDiv();
     			loadTalkedShare(context, user_id, index, user_name);
     		});
     		
     		//加载当前用户赞过的动态
     		$("#user_greated_share").click(function(){
-    			$("#show_share_area").show();
-    			$("#edit_group_div").hide();
-    			$("#user_info").hide();
-    			$("#change_group_div").hide();
-    			$("#add_friend_div").hide();
-    			$("#share_list").empty();
+    			showShareDiv();
     			loadGreatShare(context, user_id, index, user_name);
     		});
     		
@@ -149,12 +126,7 @@
     		
     		//点击回收站按钮加载回收站动态
     		$("#recycle_share").click(function(){
-    			$("#show_share_area").show();
-    			$("#edit_group_div").hide();
-    			$("#user_info").hide();
-    			$("#change_group_div").hide();
-    			$("#add_friend_div").hide();
-    			$("#share_list").empty();
+    			showShareDiv();
     			loadRecycleShare(context, user_id, user_name);
     		});
     		
@@ -166,17 +138,16 @@
     		
     		//从回收站彻底删除动态
     		$("#share_list").on("click", ".real_delete_share", function(){
-    			var share_id = $(this).parents("li").data("share_id");
-    			deleteShare(context, user_id, share_id);
+    			var realDeleteShare = confirm("彻底删除动态？");
+    			if(realDeleteShare == true){
+    				var share_id = $(this).parents("li").data("share_id");
+        			deleteShare(context, user_id, share_id);
+    			}
     		});
     		
     		//点击个人信息链接加载个人信息
     		$("#user_info_a").click(function(){
-    			$("#user_info").show();
-    			$("#show_share_area").hide();
-    			$("#edit_group_div").hide();
-    			$("#change_group_div").hide();
-    			$("#add_friend_div").hide();
+    			showUserInfoDiv();
     			queryUserInfo(context, user_id);
     		});
     		
@@ -208,24 +179,15 @@
     		
     		//点击好友的小人加载好友信息
     		$("#friend_list").on("click", ".friend_info", function(){
-    			$("#user_info").show();
-    			$("#show_share_area").hide();
-    			$("#change_group_div").hide();
-    			$("#edit_group_div").hide();
-    			$("#add_friend_div").hide();
-    			$("#user_info_list").empty();
     			var friend_id = $(this).parents("li").attr("id");
+    			showUserInfoDiv();
     			loadFriendInfo(context, user_id, friend_id);
     		});
     		
     		//点击箭头图标加载重新分组界面
     		$("#friend_list").on("click", ".change_group", function(){
-    			$("#change_group_div").show();
-    			$("#show_share_area").hide();
-    			$("#user_info").hide();
-    			$("#edit_group_div").hide();
-    			$("#add_friend_div").hide();
     			var friend_id = $(this).parents("li").attr("id");
+    			showChangeGroupDiv();
     			$(".sure_group").data("friend_id", friend_id);
     			loadGroupSelect(context, user_id);
     		});
@@ -238,18 +200,11 @@
     		});
     		
     		//点击新建分组按钮
-    		$(".add_group").click(function(){
-    			$(".group_name_div").find("input").val("");
-    			$(".group_name_div").toggle();	
-    			$(".wrong_group_msg").hide();
-    			$(".right_group_msg").hide();
-    			$("#add_friend_div").hide();
-    		});
+    		$(".add_group").click(showNewGroupDiv);
 			
     		
     		//输入组名焦点移出事件
     		$(".group_name_div input").blur(function(){
-    			
     			var group_name = $(this).val().trim();
     			//var group_name = $(".group_name_div").find("input").val().trim();
     			if(group_name == ""){
@@ -263,11 +218,7 @@
     		//点击编辑按钮加载修改组名页面
     		$("#friend_list").on("click", ".edit_group_name", function(){
     			var group_name = $(this).nextAll("a").html();
-    			$("#edit_group_div").show();
-    			$("#change_group_div").hide();
-    			$("#show_share_area").hide();
-    			$("#user_info").hide();
-    			$("#add_friend_div").hide();
+    			showEditGroupDiv();
     			$(".edit_group_input").val(group_name);
     			$(".edit_group_button").data("old_group_name", group_name);
     		});
@@ -288,13 +239,16 @@
     		$(".edit_group_button").click(function(){
     			var group_name = $(this).prev("input").val();
     			var old_group_name = $(this).data("old_group_name");
-    			groupRename(context, user_id, old_group_name, group_name);
+    			checkGroupToRename (context, user_id, old_group_name, group_name);
     		});
     		
     		//点击差号删除分组
     		$("#friend_list").on("click", ".delete_group_image", function(){
     			var group_name = $(this).next("a").html();
-    			checkGroupToRename (context, user_id, group_name);
+    			var delete_group = confirm("确定删除该分组吗？");
+    			if(delete_group == true){
+    				deleteGroup (context, user_id, group_name);
+    			}
     		});
     		
     		//点击差号删除好友
@@ -302,97 +256,39 @@
     			var delete_friend = confirm("确定删除该好友吗？");
     			if(delete_friend == true){
     				var friend_id = $(this).parents("li").attr("id");
-        			$.ajax({
-        				url:context + "/friend/deleteFriend",
-        				type:"post",
-        				dataType:"json",
-        				data:{"user_id":user_id, "friend_id": friend_id},
-        				success:function(result){
-        					alert(result.msg);
-        					refresh();
-        				}
-        			}); 
+    				deleteFriend(context, user_id, friend_id);
     			}
     		});
     		
     		//点击添加好友图标加载搜索界面
-    		$("#add_friend").click(function(){
-    			$("#edit_group_div").hide();
-    			$("#change_group_div").hide();
-    			$("#show_share_area").hide();
-    			$("#user_info").hide();
-    			$("#add_friend_div").show();
-    			
-    		});
+    		$("#add_friend").click(showAddFriendDiv);
     		
     		//点击搜索按钮查询好友
     		$(".search_friend").click(function(){
-    			$(".result_friend_div").empty();
-    			var nick_name = $(".nick_name").val().trim();
-    			
-    			if(nick_name == "此处为昵称输入框"){
-    				nick_name = "";
-    			}
-    			var friend_name = $(".friend_name").val().trim();
-    			if(friend_name == "此处为用户名输入框"){
-    				friend_name = "";
-    			}
-    			$.ajax({
-    				url:context + "/friend/searchUser",
-    				type:"post",
-    				dataType:"json",
-    				data:{"user_name":friend_name, "nick_name":nick_name},
-    				success:function(result){
-    					var friend = result.data.user;
-    					var hobbys = result.data.hobbys;
-    					var friend_sex = friend.user_sex==1 ? "男" : "女";
-    					var friend_html = "<li><p>用户名："+friend.user_name+"</p></br>";
-    					friend_html += "<p>昵称："+friend.nick_name+"</p></br>";
-    					friend_html += "<p>性别："+friend_sex+"</p></br>";
-    					if(hobbys.length > 0){
-    						friend_html += "<p>爱好：</p></br>";
-    						for(var i=0; i<hobbys.length; i++){
-    							friend_html += "<p id='hobby_id"+hobbys[i].hobby_id+"'>"+hobbys[i].hobby_name+"</p></br>";
-    						}
-    					}
-    					//检查是否已经是好友了
-    					$.ajax({
-    						url:context + "/friend/checkFriendAdded",
-    						type:"post",
-    						dataType:"json",
-    						async: false, //同步处理
-    						data:{"user_id":user_id, "friend_id":friend.user_id},
-    						success:function(result1){
-    							if(result1.status == 0){
-    								friend_html += "<button class='add_friend_button'>加为好友</button></br>";
-    								
-    							}else{
-    								friend_html += "<p>"+result1.msg+"</p>"
-    							}
-    						}
-    					});
-    					friend_html += "</li>";
-    					$friend_html = $(friend_html);
-    					$friend_html.data("friend_id", friend.user_id);
-    					$(".result_friend_div").append($friend_html);
-    				}
-    			});
+    			searchNewFriend(context, user_id);
     		});
     		
     		//点击添加按钮 添加好友
     		$(".result_friend_div").on("click", ".add_friend_button", function(){
     			var friend_id = $(this).parent().data("friend_id");
-    			var group_name = "no_group"; //默认好友是不分组的
-    			$.ajax({
-    				url:context + "/friend/addFriend",
-    				type:"post",
-    				dataType:"json",
-    				data:{"user_id":user_id, "friend_id":friend_id, "group_name" : group_name},
-    				success:function(result){
-    					alert(result.msg);
-    					refresh();
-    				}
-    			});
+    			addFriend(context, user_id, friend_id);
+    		});
+    		
+    		//点击tag加载该类动态
+    		$("#share_list").on("click", ".share_tag", function(){
+    			showShareDiv();
+    			var tag = $(this).html().substring(2).trim();
+    			$(".tag_search_share").val(tag);
+    			loadShareByTag(context, tag, user_name);
+    		});
+    		
+    		//点击tag搜索图片加载动态
+    		$("#tag_search").click(function(){
+    			var tag = $(this).prev("input").val().trim();
+    			if(tag != "tag搜索动态"){
+    				showShareDiv();
+    				loadShareByTag(context, tag, user_name);
+    			}
     		});
     		
     	});
@@ -467,6 +363,10 @@
                     </div>
                     <div class="tab-nav-content">
                         <img id="recycle_share" src="../image/recycle.png" class="title_image"/>
+                    </div>
+                     <div class="tab-nav-content">
+                        <input type="text" class="tag_search_share" onblur="if(this.value == '')this.value='tag搜索动态';" onclick="if(this.value == 'tag搜索动态')this.value='';" value="tag搜索动态">
+                        <img id="tag_search" class="title_image" src="../image/search.png"/>
                     </div>
                 </nav>
                 <button class="tab-btn btn-right"><i class="icon-font">&#xe60f;</i></button>

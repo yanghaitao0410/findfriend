@@ -1,5 +1,7 @@
 package com.yht.findfriend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class User {
 
 	private int user_id;
@@ -10,6 +12,8 @@ public class User {
 	private String user_info;
 	private String user_sex;
 	private String user_phone_num;
+	//返回json字符串时会忽略这个属性
+	@JsonIgnore
 	private String user_education;
 	
 	public int getFriend_id() {

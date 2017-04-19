@@ -97,6 +97,13 @@ public interface ShareDao {
 	 * @return
 	 */
 	int deleteShare(String share_id);
+
+	/**
+	 * 根据tag加载share
+	 * @param tag
+	 * @return
+	 */
+	List<Share> loadShareByTag(@Param("tag")String tag);
 	
 
 	

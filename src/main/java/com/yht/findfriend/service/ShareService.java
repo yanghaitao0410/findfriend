@@ -105,6 +105,13 @@ public interface ShareService {
 	 */
 	ResultMap deleteShare(String user_id, String share_id);
 
+	/**
+	 * 根据tag加载share的服务方法
+	 * @param tag
+	 * @return
+	 */
+	ResultMap loadShareByTag(String tag);
+
 
 
 

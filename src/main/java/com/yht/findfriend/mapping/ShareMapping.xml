@@ -52,6 +52,13 @@
     	where share_id = #{share_id}
     </select>
     
+    <select id="loadShareByTag" resultType="com.yht.findfriend.entity.Share">
+    	select 
+    	<include refid="share_columns"/>
+    	from share 
+    	where share_tag like concat('%',#{tag},'%')
+    </select>
+    
    <update id="updateShare" parameterType="com.yht.findfriend.entity.Share">
    	update share 
    	<set>

@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 public class Share {
 
@@ -13,14 +15,25 @@ public class Share {
 	private String user_name;
 	private int share_id;
 	private String share_msg;
+	@JsonIgnore
 	private String image_uri;
 	private String[] images;
 	private int share_status;
+	@JsonIgnore
 	private String share_tag;
 	private int endorse_count;
 	private Long share_creatime;
+	private String[]tags;
 	private List<Map<String, String>> talk_list;
-	
+		
+	public String[] getTags() {
+		return tags;
+	}
+
+	public void setTags(String[] tags) {
+		this.tags = tags;
+	}
+
 	public List<Map<String, String>> getTalk_list() {
 		return talk_list;
 	}

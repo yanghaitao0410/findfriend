@@ -192,6 +192,19 @@ public class ShareController {
 		return resultMap;
 	}
 	
+	/**
+	 * 根据tag加载share
+	 * @param tag
+	 * @return
+	 */
+	@RequestMapping("loadShareByTag")
+	@ResponseBody
+	public ResultMap loadShareByTag(String tag){
+		ResultMap resultMap = shareService.loadShareByTag(tag);
+		return resultMap;
+	}
+	
+	
 }
 
 

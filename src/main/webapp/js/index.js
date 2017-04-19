@@ -84,12 +84,7 @@ function createChild(childArray,group_name){
 }
 
 function loadHotShare(user_id ,index, context, user_name){
-	$("#show_share_area").show();
-	$("#edit_group_div").hide();
-	$("#user_info").hide();
-	$("#change_group_div").hide();
-	$("#add_friend_div").hide();
-	$("#share_list").empty();
+	showShareDiv();
 	//加载热门动态
 	$.ajax({
 		url : context+"/share/loadHotShare",
@@ -131,6 +126,7 @@ function appendShareList(result, context, user_name){
 		var data = result.data;
 		for(var i=data.length-1; i>=0; i--){
 			var talk_list = data[i].talk_list;
+			var tags = data[i].tags;
 			var li = "";
 			li += "<li><span>"+data[i].user_name+"</span><br/><span>"+data[i].share_msg+"</span><br/>";
 			//拼接动态图片
@@ -139,6 +135,14 @@ function appendShareList(result, context, user_name){
 			}
 			//拼接动态创建时间和点赞信息
 			li += "<span>"+data[i].creatime+"</span><br/><span><image src='../image/greed.png' width='13' height='13'/><span>"+data[i].endorse_count+"</span></span><br/><p>";
+			//拼接tag
+			li += "<div class='tag_div'>";
+			if("" != tags[0]){
+				for(var t = 0; t < tags.length; t++){
+					li += "<a class='share_tag' href='javascript:void(0);'> #"+tags[t]+" </a>";
+				}
+			}
+			li += "</div>";
 			//拼接评论信息
 			if(talk_list != null && talk_list.length > 0){
 				for(var j=0; j<talk_list.length; j++){
@@ -513,3 +517,146 @@ function updateUserInfo(user_id, nick_name, user_sex, user_phone_num, string_hob
 		}
 	});
 }
+
+function deleteFriend(context, user_id, friend_id){
+	$.ajax({
+		url:context + "/friend/deleteFriend",
+		type:"post",
+		dataType:"json",
+		data:{"user_id":user_id, "friend_id": friend_id},
+		success:function(result){
+			alert(result.msg);
+			refresh();
+		}
+	}); 
+}
+
+function showAddFriendDiv(){
+	$("#add_friend_div").show();
+	$("#edit_group_div").hide();
+	$("#change_group_div").hide();
+	$("#show_share_area").hide();
+	$("#user_info").hide();
+}
+
+function showEditGroupDiv(){
+	$("#edit_group_div").show();
+	$("#change_group_div").hide();
+	$("#show_share_area").hide();
+	$("#user_info").hide();
+	$("#add_friend_div").hide();
+}
+
+function showNewGroupDiv(){
+	$(".group_name_div").find("input").val("");
+	$(".group_name_div").toggle();	
+	$(".wrong_group_msg").hide();
+	$(".right_group_msg").hide();
+	$("#add_friend_div").hide();
+}
+
+function showChangeGroupDiv(){
+	$("#change_group_div").show();
+	$("#show_share_area").hide();
+	$("#user_info").hide();
+	$("#edit_group_div").hide();
+	$("#add_friend_div").hide();
+}
+
+function showUserInfoDiv(){
+	$("#user_info").show();
+	$("#show_share_area").hide();
+	$("#change_group_div").hide();
+	$("#edit_group_div").hide();
+	$("#add_friend_div").hide();
+	$("#user_info_list").empty();
+}
+
+function addFriend(context, user_id, friend_id){
+	var group_name = "no_group"; //默认好友是不分组的
+	$.ajax({
+		url:context + "/friend/addFriend",
+		type:"post",
+		dataType:"json",
+		data:{"user_id":user_id, "friend_id":friend_id, "group_name" : group_name},
+		success:function(result){
+			alert(result.msg);
+			refresh();
+		}
+	});
+}
+
+function searchNewFriend(context, user_id){
+	$(".result_friend_div").empty();
+	var nick_name = $(".nick_name").val().trim();
+	
+	if(nick_name == "此处为昵称输入框"){
+		nick_name = "";
+	}
+	var friend_name = $(".friend_name").val().trim();
+	if(friend_name == "此处为用户名输入框"){
+		friend_name = "";
+	}
+	$.ajax({
+		url:context + "/friend/searchUser",
+		type:"post",
+		dataType:"json",
+		data:{"user_name":friend_name, "nick_name":nick_name},
+		success:function(result){
+			var friend = result.data.user;
+			var hobbys = result.data.hobbys;
+			var friend_sex = friend.user_sex==1 ? "男" : "女";
+			var friend_html = "<li><p>用户名："+friend.user_name+"</p></br>";
+			friend_html += "<p>昵称："+friend.nick_name+"</p></br>";
+			friend_html += "<p>性别："+friend_sex+"</p></br>";
+			if(hobbys.length > 0){
+				friend_html += "<p>爱好：</p></br>";
+				for(var i=0; i<hobbys.length; i++){
+					friend_html += "<p id='hobby_id"+hobbys[i].hobby_id+"'>"+hobbys[i].hobby_name+"</p></br>";
+				}
+			}
+			//检查是否已经是好友了
+			$.ajax({
+				url:context + "/friend/checkFriendAdded",
+				type:"post",
+				dataType:"json",
+				async: false, //同步处理
+				data:{"user_id":user_id, "friend_id":friend.user_id},
+				success:function(result1){
+					if(result1.status == 0){
+						friend_html += "<button class='add_friend_button'>加为好友</button></br>";
+						
+					}else{
+						friend_html += "<p>"+result1.msg+"</p>"
+					}
+				}
+			});
+			friend_html += "</li>";
+			$friend_html = $(friend_html);
+			$friend_html.data("friend_id", friend.user_id);
+			$(".result_friend_div").append($friend_html);
+		}
+	});
+}
+
+function showShareDiv(){
+	$("#show_share_area").show();
+	$("#edit_group_div").hide();
+	$("#user_info").hide();
+	$("#change_group_div").hide();
+	$("#add_friend_div").hide();
+	$("#share_list").empty();
+}
+
+function loadShareByTag(context, tag, user_name){
+	$.ajax({
+		url: context + "/share/loadShareByTag",
+		type:"post",
+		dataType:"json",
+		data:{"tag":tag},
+		success:function(result){
+			appendShareList(result, context, user_name);
+		}
+	});
+}
+

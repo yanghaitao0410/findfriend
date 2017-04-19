@@ -130,6 +130,9 @@ public class ShareServiceImpl implements ShareService {
 			share.setImages(splitUri(share.getImage_uri()));
 			//将share对应的talk信息查出存入share
 			share = setTalks(share);
+			if(share.getShare_tag() != null){
+				share.setTags(splitTag(share.getShare_tag()));
+			}
 		}
 		ResultMap resultMap = new ResultMap();
 		if(data.size() > 0){
@@ -143,6 +146,16 @@ public class ShareServiceImpl implements ShareService {
 		return resultMap;
 	}
 
+	/**
+	 * 将tag字符串拆分为一个个tag
+	 * @param tag
+	 * @return
+	 */
+	private String[] splitTag(String tag){
+		String[]tags = tag.split(",");
+		return tags;
+	}
+	
 	/**
 	 * 为动态设置评论信息
 	 * @param share
@@ -342,6 +355,12 @@ public class ShareServiceImpl implements ShareService {
 			}
 		}
 		return result;
+	}
+
+	@Override
+	public ResultMap loadShareByTag(String tag) {
+		List<Share> shares = shareDao.loadShareByTag(tag);
+		return getResultMap(shares);
 	}
 
 
