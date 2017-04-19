@@ -9,6 +9,9 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import com.yht.findfriend.dao.FriendDao;
+import com.yht.findfriend.dao.GroupDao;
+import com.yht.findfriend.dao.HobbyDao;
+import com.yht.findfriend.dao.UserDao;
 import com.yht.findfriend.entity.Friend;
 import com.yht.findfriend.entity.Hobby;
 import com.yht.findfriend.entity.ResultMap;
@@ -19,11 +22,20 @@ import com.yht.findfriend.service.FriendService;
 public class FriendServiceImpl implements FriendService {
 
 	@Resource
-	private FriendDao dao;
+	private FriendDao friendDao;
+	
+	@Resource
+	private GroupDao groupDao;
+	
+	@Resource
+	private HobbyDao hobbyDao;
+	
+	@Resource
+	private UserDao userDao;
 	
 	@Override
 	public ResultMap QueryFriend(String user_id) {
-		List<Friend> friends = dao.queryFriend(user_id);
+		List<Friend> friends = friendDao.queryFriend(user_id);
 		ResultMap result = new ResultMap();
 		result.setStatus(0);
 		result.setMsg("查询成功");
@@ -37,7 +49,7 @@ public class FriendServiceImpl implements FriendService {
 
 	@Override
 	public ResultMap QueryGroup(String user_id) {
-		List<String> groups = dao.queryGroup(user_id);
+		List<String> groups = groupDao.queryGroup(user_id);
 		ResultMap result = new ResultMap();
 		result.setStatus(0);
 		result.setMsg("查询组名成功");
@@ -53,8 +65,8 @@ public class FriendServiceImpl implements FriendService {
 		param.put("user_id", user_id);
 		param.put("friend_id", friend_id);
 		
-		Friend friend = dao.QueryFriendInfo(param);
-		List<Hobby> hobbys = dao.QueryHobby(friend_id);
+		Friend friend = friendDao.QueryFriendInfo(param);
+		List<Hobby> hobbys = hobbyDao.queryHobby(friend_id);
 		
 		Map<Object, Object> data = new HashMap<Object, Object>();
 		data.put("friend", friend);
@@ -67,7 +79,7 @@ public class FriendServiceImpl implements FriendService {
 
 	@Override
 	public ResultMap checkGroup(String user_id, String group_name) {
-		int count = dao.checkGroup(user_id, group_name);
+		int count = groupDao.checkGroup(user_id, group_name);
 		ResultMap result = new ResultMap();
 		if(count == 1){
 			result.setMsg("该分组已存在，请输入其他组名");
@@ -84,11 +96,11 @@ public class FriendServiceImpl implements FriendService {
 		if("no_group".equals(friend.getGroup_name())){
 			friend.setParent_id(0);
 		}else{
-			int group_id = dao.queryGroupIdByName(friend.getGroup_name(), friend.getUser_id());
+			int group_id = groupDao.queryGroupIdByName(friend.getGroup_name(), friend.getUser_id());
 			friend.setParent_id(group_id);
 		}
 		
-		int count = dao.changeGroup(friend);
+		int count = friendDao.changeGroup(friend);
 		ResultMap result = new ResultMap();
 		if(count == 1){
 			result.setStatus(0);
@@ -102,7 +114,7 @@ public class FriendServiceImpl implements FriendService {
 
 	@Override
 	public ResultMap deleteFriendService(String user_id, String friend_id) {
-		int count = dao.deleteFriend(user_id, friend_id);
+		int count = friendDao.deleteFriend(user_id, friend_id);
 		ResultMap result = new ResultMap();
 		if(count == 1){
 			result.setStatus(0);
@@ -114,14 +126,27 @@ public class FriendServiceImpl implements FriendService {
 		return result;
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	public ResultMap searchUser(String user_name, String nick_name) {
-		User user = dao.searchUser(user_name, nick_name);
+		if("".equals(user_name.trim())){
+			user_name = null;
+		}
+		if("".equals(nick_name.trim())){
+			nick_name = null;
+		}
+		User user = userDao.searchUser(user_name, nick_name);
+		List<Hobby> hobbys = hobbyDao.queryHobby(user.getUser_id()+"");
 		ResultMap result= new ResultMap();
 		if(user != null){
 			result.setStatus(0);
 			result.setMsg("查询成功！！！");
-			result.setData(user);
+			Map<String, Object> data = new HashMap<String, Object>();
+			data.put("user", user);
+			if(hobbys != null){
+				data.put("hobbys", hobbys);
+			}
+			result.setData(data);
 		}else{
 			result.setStatus(1);
 			result.setMsg("该用户不存在，请重新确认！！！");
@@ -131,14 +156,20 @@ public class FriendServiceImpl implements FriendService {
 
 	@Override
 	public ResultMap addFriend(Friend friend) {
-		if(friend.getGroup_name() != null){
-			int group_id = dao.queryGroupIdByName(friend.getGroup_name(), friend.getUser_id());
-			if(group_id >= -1){
-				friend.setParent_id(group_id);
-			}
-		}
+//		if(friend.getGroup_name() != null){
+//			int group_id = groupDao.queryGroupIdByName(friend.getGroup_name(), friend.getUser_id());
+//			if(group_id >= -1){
+//				friend.setParent_id(group_id);
+//			}
+//		}
+		User user = userDao.queryUserInfo(friend.getFriend_id()+"");
+		friend.setParent_id(0);
+		friend.setFriend_name(user.getUser_name());
+		friend.setFriend_sex(Integer.valueOf(user.getUser_sex()));
+		friend.setFriend_phonenum(user.getUser_phone_num());
+		friend.setNick_name(user.getNick_name());
 		ResultMap result = new ResultMap();
-		int count = dao.addFriend(friend);
+		int count = friendDao.addFriend(friend);
 		
 		if(count == 1){
 			result.setStatus(0);
@@ -153,10 +184,10 @@ public class FriendServiceImpl implements FriendService {
 	@Override
 	public ResultMap addGroup(String user_id, String group_name) {
 		ResultMap result = new ResultMap();
-		int count = dao.checkGroup(user_id, group_name);
+		int count = groupDao.checkGroup(user_id, group_name);
 		if(count != 1){
 			count = 0;
-			count = dao.addGroup(user_id, group_name);
+			count = groupDao.addGroup(user_id, group_name);
 			if(count == 1){
 				result.setStatus(0);
 				result.setMsg("添加分组成功");
@@ -171,8 +202,8 @@ public class FriendServiceImpl implements FriendService {
 	@Override
 	public ResultMap groupRename(String user_id, String old_group_name, String new_group_name) {
 		ResultMap result = new ResultMap();
-		int friendCount = dao.groupRenameAtFriend(user_id, old_group_name, new_group_name);
-		int groupCount = dao.groupRenameAtGroup(user_id, old_group_name, new_group_name);
+		int friendCount = friendDao.groupRenameAtFriend(user_id, old_group_name, new_group_name);
+		int groupCount = groupDao.groupRenameAtGroup(user_id, old_group_name, new_group_name);
 		if(friendCount >= 0 && groupCount == 1){
 			result.setStatus(0);
 			result.setMsg("更改组名成功！！！");
@@ -186,9 +217,9 @@ public class FriendServiceImpl implements FriendService {
 	@Override
 	public ResultMap deleteGroup(String user_id, String group_name) {
 		ResultMap result = new ResultMap();
-		int count = dao.checkFriendAtGroup(user_id, group_name);
+		int count = friendDao.checkFriendAtGroup(user_id, group_name);
 		if(count == 0){
-			count = dao.deleteGroup(user_id, group_name);
+			count = groupDao.deleteGroup(user_id, group_name);
 			if(count == 1){
 				result.setStatus(0);
 				result.setMsg("删除分组成功！！！");
@@ -201,6 +232,20 @@ public class FriendServiceImpl implements FriendService {
 			result.setMsg("还有好友在当前分组，将好友转移至其他分组后才可删除！！！");
 		}
 		return result;
+	}
+
+	@Override
+	public ResultMap checkFriendAdded(User user) {
+		int count = friendDao.checkFriendAdded(user);
+		ResultMap resultMap = new ResultMap();
+		if(count == 1){
+			resultMap.setStatus(1);
+			resultMap.setMsg("该用户已经是好友了！！");
+		}else{
+			resultMap.setStatus(0);
+			resultMap.setMsg("该用户还不是好友！！");
+		}
+		return resultMap;
 	}
 
 }

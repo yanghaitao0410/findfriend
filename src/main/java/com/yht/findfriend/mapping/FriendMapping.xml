@@ -11,14 +11,6 @@
 			user_id = #{user_id} and status = 0		
 	</select>
 
-	<select id="queryGroup" parameterType="string" resultType="string">
-		select group_name  
-		from 
-			user_group
-		where 
-			user_id = #{user_id}
-	</select>
-
 	<select id="QueryFriendInfo" parameterType="map" resultType="com.yht.findfriend.entity.Friend">
 		select 
 			friend_id, friend_name, friend_sex, friend_phonenum, nick_name 
@@ -28,51 +20,13 @@
 			user_id = #{user_id} and friend_id = #{friend_id}
 	</select>
 	
-	<select id="QueryHobby" parameterType="string" resultType="com.yht.findfriend.entity.Hobby">
-		select 
-			user_id, hobby_id, hobby_name 
-		from 	
-			user_hobby 
-		where 
-			user_id = #{user__id}
-	</select>
-	
-	<select id="checkGroup" resultType="int">
-		select count(group_id) 
-		from user_group
-		where group_name = #{group_name} and user_id = #{user_id}
-	</select>
-	
-	<select id="queryGroupIdByName" parameterType="map" resultType="int">
-		select group_id
-		from user_group
-		where group_name = #{group_name} and user_id = #{user_id}
-	</select>
-	<update id="changeGroup" parameterType="com.yht.findfriend.entity.Friend">
-		update 
+	<delete id="deleteFriend" >
+		delete 
+		from 
 			user_friend 
-		set 
-			parent_id = #{parent_id} , group_name = #{group_name} 
 		where 
 			user_id = #{user_id} and friend_id = #{friend_id}
-	</update>
-	
-	<delete id="deleteFriend" >
-		delete from user_friend where user_id = #{user_id} and friend_id = #{friend_id}
 	</delete>
-	
-	<select id="searchUser" parameterType="string" resultType="com.yht.findfriend.entity.User">
-		select user_id, user_name, user_sex, user_phone_num, nick_name
-		from user
-		<where>
-			<if test="user_name != null">
-				user_name = #{user_name}
-			</if>
-			<if test="nick_name != null">
-				and nick_name = #{nick_name}
-			</if>
-		</where>
-	</select>
 	
 	<insert id="addFriend" parameterType="com.yht.findfriend.entity.Friend">
 		insert into user_friend
@@ -96,20 +50,9 @@
 		</set>
 	</insert>
 	
-	<insert id="addGroup">
-		insert into user_group
-		set group_name = #{group_name} ,user_id = #{user_id}
-	</insert>
-	
 	<update id="groupRenameAtFriend">
 		update user_friend 
 		set group_name = #{new_group_name} 
-		where user_id = #{user_id} and group_name = #{old_group_name}
-	</update>
-	
-	<update id="groupRenameAtGroup">
-		update user_group 
-		set group_name = #{new_group_name}
 		where user_id = #{user_id} and group_name = #{old_group_name}
 	</update>
 	
@@ -118,13 +61,21 @@
 		where user_id = #{user_id} and group_name = #{group_name}
 	</select>
 	
-	<delete id="deleteGroup">
-		delete from user_group 
-		where user_id = #{user_id} and group_name = #{group_name}
-	</delete>
+	<update id="changeGroup" parameterType="com.yht.findfriend.entity.Friend">
+		update 
+			user_friend 
+		set 
+			parent_id = #{parent_id} , group_name = #{group_name} 
+		where 
+			user_id = #{user_id} and friend_id = #{friend_id}
+	</update>
 
-
-
+	<select id="checkFriendAdded" parameterType="com.yht.findfriend.entity.User" resultType="int">
+		select count(friend_id)
+		from user_friend
+		where user_id = #{user_id} and friend_id = #{friend_id}
+	</select>
+	
 
 
 

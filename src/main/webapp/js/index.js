@@ -43,7 +43,7 @@ function appendMenu(data){
     		childArray[childIndex] = dataTree[i];
     		childIndex++;
     	}else{
-    		var sli = '<li id='+dataTree[i].friend_id+'><a><image class="friend_info" src="../image/user.png" width="18" height="18"/><span>'+dataTree[i].friend_name+'</span><image class="change_group" src="../image/move.png" width="18" height="18"/></a></li>';
+    		var sli = '<li id='+dataTree[i].friend_id+'><a><image class="friend_info" src="../image/user.png" width="18" height="18"/><span>'+dataTree[i].friend_name+'</span><image class="change_group" src="../image/move.png" width="18" height="18"/><image class="delete_friend_image" src="../image/delete.png"  width="15" height="15"/></a></li>';
 //			$li = $(sli);
 //			$li.data("friend_id",dataTree[i].friend_id);
 			result += sli;
@@ -74,7 +74,7 @@ function createChild(childArray,group_name){
 	var childResult='';
 	for(var i =0;i<childArray.length;i++){
 		if(childArray[i].group_name == group_name){
-			var sli = '<li id='+childArray[i].friend_id+'><a><image class="friend_info" src="../image/user.png" width="18" height="18"/><span>'+childArray[i].friend_name+'</span><image class="change_group" src="../image/move.png" width="18" height="18"/></a></li>';
+			var sli = '<li id='+childArray[i].friend_id+'><a><image class="friend_info" src="../image/user.png" width="18" height="18"/><span>'+childArray[i].friend_name+'</span><image class="change_group" src="../image/move.png" width="18" height="18"/><image class="delete_friend_image" src="../image/delete.png"  width="15" height="15"/></a></li>';
 //			$li = $(sli);
 //			$li.data("friend_id",childArray[i].friend_id);
 			childResult += sli;    
@@ -88,6 +88,7 @@ function loadHotShare(user_id ,index, context, user_name){
 	$("#edit_group_div").hide();
 	$("#user_info").hide();
 	$("#change_group_div").hide();
+	$("#add_friend_div").hide();
 	$("#share_list").empty();
 	//加载热门动态
 	$.ajax({

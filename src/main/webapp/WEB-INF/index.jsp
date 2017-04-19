@@ -51,6 +51,7 @@
     			$("#edit_group_div").hide();
     			$("#user_info").hide();
     			$("#change_group_div").hide();
+    			$("#add_friend_div").hide();
     			$("#share_list").empty();
     			loadSelfShare(context, user_id, user_name , index);
     		});
@@ -61,6 +62,7 @@
     			$("#edit_group_div").hide();
     			$("#user_info").hide();
     			$("#change_group_div").hide();
+    			$("#add_friend_div").hide();
     			$("#share_list").empty();
     			loadFriendShare(user_id, index, context, user_name);
     		});
@@ -85,6 +87,7 @@
     			$("#edit_group_div").hide();
     			$("#user_info").hide();
     			$("#change_group_div").hide();
+    			$("#add_friend_div").hide();
     			$("#share_list").empty();
     			var friend_id = $(this).parents("li").attr("id");
     			loadSpecificShare(context, friend_id, index, user_name);
@@ -122,6 +125,7 @@
     			$("#edit_group_div").hide();
     			$("#user_info").hide();
     			$("#change_group_div").hide();
+    			$("#add_friend_div").hide();
     			$("#share_list").empty();
     			loadTalkedShare(context, user_id, index, user_name);
     		});
@@ -132,6 +136,7 @@
     			$("#edit_group_div").hide();
     			$("#user_info").hide();
     			$("#change_group_div").hide();
+    			$("#add_friend_div").hide();
     			$("#share_list").empty();
     			loadGreatShare(context, user_id, index, user_name);
     		});
@@ -148,6 +153,7 @@
     			$("#edit_group_div").hide();
     			$("#user_info").hide();
     			$("#change_group_div").hide();
+    			$("#add_friend_div").hide();
     			$("#share_list").empty();
     			loadRecycleShare(context, user_id, user_name);
     		});
@@ -170,6 +176,7 @@
     			$("#show_share_area").hide();
     			$("#edit_group_div").hide();
     			$("#change_group_div").hide();
+    			$("#add_friend_div").hide();
     			queryUserInfo(context, user_id);
     		});
     		
@@ -205,6 +212,7 @@
     			$("#show_share_area").hide();
     			$("#change_group_div").hide();
     			$("#edit_group_div").hide();
+    			$("#add_friend_div").hide();
     			$("#user_info_list").empty();
     			var friend_id = $(this).parents("li").attr("id");
     			loadFriendInfo(context, user_id, friend_id);
@@ -216,6 +224,7 @@
     			$("#show_share_area").hide();
     			$("#user_info").hide();
     			$("#edit_group_div").hide();
+    			$("#add_friend_div").hide();
     			var friend_id = $(this).parents("li").attr("id");
     			$(".sure_group").data("friend_id", friend_id);
     			loadGroupSelect(context, user_id);
@@ -234,6 +243,7 @@
     			$(".group_name_div").toggle();	
     			$(".wrong_group_msg").hide();
     			$(".right_group_msg").hide();
+    			$("#add_friend_div").hide();
     		});
 			
     		
@@ -253,10 +263,11 @@
     		//点击编辑按钮加载修改组名页面
     		$("#friend_list").on("click", ".edit_group_name", function(){
     			var group_name = $(this).nextAll("a").html();
+    			$("#edit_group_div").show();
     			$("#change_group_div").hide();
     			$("#show_share_area").hide();
     			$("#user_info").hide();
-    			$("#edit_group_div").show();
+    			$("#add_friend_div").hide();
     			$(".edit_group_input").val(group_name);
     			$(".edit_group_button").data("old_group_name", group_name);
     		});
@@ -286,6 +297,103 @@
     			checkGroupToRename (context, user_id, group_name);
     		});
     		
+    		//点击差号删除好友
+    		$("#friend_list").on("click", ".delete_friend_image", function(){
+    			var delete_friend = confirm("确定删除该好友吗？");
+    			if(delete_friend == true){
+    				var friend_id = $(this).parents("li").attr("id");
+        			$.ajax({
+        				url:context + "/friend/deleteFriend",
+        				type:"post",
+        				dataType:"json",
+        				data:{"user_id":user_id, "friend_id": friend_id},
+        				success:function(result){
+        					alert(result.msg);
+        					refresh();
+        				}
+        			}); 
+    			}
+    		});
+    		
+    		//点击添加好友图标加载搜索界面
+    		$("#add_friend").click(function(){
+    			$("#edit_group_div").hide();
+    			$("#change_group_div").hide();
+    			$("#show_share_area").hide();
+    			$("#user_info").hide();
+    			$("#add_friend_div").show();
+    			
+    		});
+    		
+    		//点击搜索按钮查询好友
+    		$(".search_friend").click(function(){
+    			$(".result_friend_div").empty();
+    			var nick_name = $(".nick_name").val().trim();
+    			
+    			if(nick_name == "此处为昵称输入框"){
+    				nick_name = "";
+    			}
+    			var friend_name = $(".friend_name").val().trim();
+    			if(friend_name == "此处为用户名输入框"){
+    				friend_name = "";
+    			}
+    			$.ajax({
+    				url:context + "/friend/searchUser",
+    				type:"post",
+    				dataType:"json",
+    				data:{"user_name":friend_name, "nick_name":nick_name},
+    				success:function(result){
+    					var friend = result.data.user;
+    					var hobbys = result.data.hobbys;
+    					var friend_sex = friend.user_sex==1 ? "男" : "女";
+    					var friend_html = "<li><p>用户名："+friend.user_name+"</p></br>";
+    					friend_html += "<p>昵称："+friend.nick_name+"</p></br>";
+    					friend_html += "<p>性别："+friend_sex+"</p></br>";
+    					if(hobbys.length > 0){
+    						friend_html += "<p>爱好：</p></br>";
+    						for(var i=0; i<hobbys.length; i++){
+    							friend_html += "<p id='hobby_id"+hobbys[i].hobby_id+"'>"+hobbys[i].hobby_name+"</p></br>";
+    						}
+    					}
+    					//检查是否已经是好友了
+    					$.ajax({
+    						url:context + "/friend/checkFriendAdded",
+    						type:"post",
+    						dataType:"json",
+    						async: false, //同步处理
+    						data:{"user_id":user_id, "friend_id":friend.user_id},
+    						success:function(result1){
+    							if(result1.status == 0){
+    								friend_html += "<button class='add_friend_button'>加为好友</button></br>";
+    								
+    							}else{
+    								friend_html += "<p>"+result1.msg+"</p>"
+    							}
+    						}
+    					});
+    					friend_html += "</li>";
+    					$friend_html = $(friend_html);
+    					$friend_html.data("friend_id", friend.user_id);
+    					$(".result_friend_div").append($friend_html);
+    				}
+    			});
+    		});
+    		
+    		//点击添加按钮 添加好友
+    		$(".result_friend_div").on("click", ".add_friend_button", function(){
+    			var friend_id = $(this).parent().data("friend_id");
+    			var group_name = "no_group"; //默认好友是不分组的
+    			$.ajax({
+    				url:context + "/friend/addFriend",
+    				type:"post",
+    				dataType:"json",
+    				data:{"user_id":user_id, "friend_id":friend_id, "group_name" : group_name},
+    				success:function(result){
+    					alert(result.msg);
+    					refresh();
+    				}
+    			});
+    		});
     		
     	});
     </script>
@@ -351,11 +459,14 @@
                     <div class="tab-nav-content">
                         <a id="user_greated_share" href="javascript:void(0);" class="content-tab active">赞过的动态</a>
                     </div>
+                    <div class="tab-nav-content">
+                        <img id="add_friend" src="../image/addFriend.png" class="title_image"/>
+                    </div>
                      <div class="tab-nav-content">
                         <a id="send_share" href="javascript:;" class="content-tab active">+</a>
                     </div>
                     <div class="tab-nav-content">
-                        <image id="recycle_share" src="../image/recycle.png" class="content-tab active" width="20" higth="20"></image>
+                        <img id="recycle_share" src="../image/recycle.png" class="title_image"/>
                     </div>
                 </nav>
                 <button class="tab-btn btn-right"><i class="icon-font">&#xe60f;</i></button>
@@ -395,6 +506,20 @@
 				<button class="edit_group_button">确认更改</button>
 				<div class="wrong_group_msg" style="color: red;display: none"></div>
 				<div class="right_group_msg" style="color: green;display: none"></div>
+			</div>
+			<div id=add_friend_div class="layout-main-body" style="display: none;">
+				<h1>
+					添加好友 (查询条件可以是任意一种)
+				</h1>
+				<div>
+					<input type="text" class="friend_name" name="friend_name" onblur="if(this.value == '')this.value='此处为用户名输入框';" onclick="if(this.value == '此处为用户名输入框')this.value='';" value="此处为用户名输入框"></br>
+					<input type="text" class="nick_name" name="nick_name" onblur="if(this.value == '')this.value='此处为昵称输入框';" onclick="if(this.value == '此处为昵称输入框')this.value='';" value="此处为昵称输入框"></br>
+					<button class="search_friend">搜索</button></br>
+					<div class="result_friend_div">
+					</div>
+					
+				</div>
+				
 			</div>
 			
 		</section>

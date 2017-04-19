@@ -93,4 +93,11 @@ public interface FriendService {
 	 */
 	ResultMap deleteGroup(String user_id, String group_name);
 
+	/**
+	 * 确认是否已经添加该好友的服务方法
+	 * @param user
+	 * @return
+	 */
+	ResultMap checkFriendAdded(User user);
+
 }

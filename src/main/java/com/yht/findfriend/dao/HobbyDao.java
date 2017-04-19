@@ -8,7 +8,7 @@ import com.yht.findfriend.entity.Hobby;
 
 public interface HobbyDao {
 
-	List<Hobby> queryUserHobby(@Param("user_id")String user_id);
+	List<Hobby> queryHobby(@Param("user_id")String user_id);
 
 	int deleteHobby(@Param("user_id")int user_id);
 

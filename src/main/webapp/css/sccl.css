@@ -140,7 +140,11 @@ a cite{font-style: normal; *cursor:pointer;}
 .tab-nav-content a.active i:hover{color: #FF5722;}
 .tab-nav-content .content-tab{transition: all .3s ease-out 0s;-webkit-transition: all .3s ease-out 0s;}
 
-
+.title_image{
+	padding-top: 7px;
+	width:20px;
+	higth:20px;
+}
 
 /** 动画 **/
 @-webkit-keyframes icon-rotate{ /* 旋转360 */

@@ -90,13 +90,14 @@ public class FriendController {
 	@RequestMapping("searchUser")
 	@ResponseBody
 	public ResultMap searchUser(String user_name, String nick_name){
+		System.out.println(user_name + " "+ nick_name);
 		ResultMap result = service.searchUser(user_name, nick_name);
 		return result;
 	}
 	
 	/**
 	 * 添加好友：实际传入的参数有：
-	 * 		[user_id, friend_id, group_name, friend_name, nick_name,friend_sex, friend_phonenum]
+	 * 		[user_id, friend_id, group_name]
 	 * "parent_id" 在service中查出
 	 * @param friend
 	 * @return
@@ -134,6 +135,18 @@ public class FriendController {
 	public ResultMap deleteGroup(String user_id, String group_name){
 		ResultMap result = service.deleteGroup(user_id, group_name);
 		return result;
+	}
+	
+	/**
+	 * 确认该用户是否已经是好友了
+	 * @param user
+	 * @return
+	 */
+	@RequestMapping("checkFriendAdded")
+	@ResponseBody
+	public ResultMap checkFriendAdded(User user){
+		ResultMap resultMap = service.checkFriendAdded(user);
+		return resultMap;
 	}
 	
 	

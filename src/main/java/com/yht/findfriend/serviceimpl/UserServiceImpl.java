@@ -102,7 +102,7 @@ public class UserServiceImpl implements UserService {
 	public ResultMap queryUserInfo(String user_id) {
 		ResultMap resultMap = new ResultMap();
 		User user = userDao.queryUserInfo(user_id);
-		List<Hobby> hobbys = hobbyDao.queryUserHobby(user_id);
+		List<Hobby> hobbys = hobbyDao.queryHobby(user_id);
 		Map <String, Object> data = new HashMap<String, Object>();
 		data.put("user", user);
 		data.put("hobby", hobbys);

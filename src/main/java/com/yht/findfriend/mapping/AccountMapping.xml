@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.yht.findfriend.dao.UserDao">
-    <select id="findUserByUserName" parameterType="string" resultType="com.yht.findfriend.entity.User">
+    <select id="findUserByUserName" resultType="com.yht.findfriend.entity.User">
     	select 
     		user_id, user_name, user_pwd 
     	from 
@@ -37,8 +37,12 @@
     </update>
     
     <select id="getUser_id" parameterType="int" resultType="string">
-    	select user_name from user
-    	where user_id = #{user_id}
+    	select 
+    		user_name 
+    	from 
+    		user
+    	where 
+    		user_id = #{user_id}
     </select>
     
     <select id="queryUserInfo" resultType="com.yht.findfriend.entity.User">
@@ -62,5 +66,18 @@
     	</set>
     	where user_id = #{user_id}
     </update>
+    
+    <select id="searchUser" parameterType="string" resultType="com.yht.findfriend.entity.User">
+		select user_id, user_name, user_sex, user_phone_num, nick_name
+		from user
+		<where>
+			<if test="user_name != null">
+				user_name = #{user_name}
+			</if>
+			<if test="nick_name != null">
+				and nick_name = #{nick_name}
+			</if>
+		</where>
+	</select>
     
 </mapper>
