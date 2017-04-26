@@ -77,7 +77,25 @@
 	</select>
 	
 
-
+	<select id="recommendFriendByTag" resultType="com.yht.findfriend.entity.User">
+		select user_id
+		from share 
+		<where>
+			<if test="list != null">
+				user_id not in
+				<foreach collection="list" index="index" item="id"
+		    		 open="(" close=")" separator=",">
+		    		#{id}	 
+		    	</foreach>
+			
+			</if>
+			<if test="tag != null">
+				and share_tag like concat('%',#{tag},'%')
+			</if>
+    	
+		</where>
+	
+	</select>
 
 
 

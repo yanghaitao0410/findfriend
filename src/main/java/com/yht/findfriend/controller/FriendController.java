@@ -1,11 +1,13 @@
 package com.yht.findfriend.controller;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.sun.corba.se.spi.orbutil.fsm.Guard.Result;
 import com.yht.findfriend.entity.Friend;
 import com.yht.findfriend.entity.ResultMap;
 import com.yht.findfriend.entity.User;
@@ -96,7 +98,7 @@ public class FriendController {
 	}
 	
 	/**
-	 * 添加好友：实际传入的参数有：
+	 * 添加好友：</br>实际传入的参数有：</br>
 	 * 		[user_id, friend_id, group_name]
 	 * "parent_id" 在service中查出
 	 * @param friend
@@ -104,8 +106,8 @@ public class FriendController {
 	 */
 	@RequestMapping("addFriend")
 	@ResponseBody
-	public ResultMap addFriend(Friend friend){
-		ResultMap result = service.addFriend(friend);
+	public ResultMap addFriend(Friend friend, HttpServletRequest request){
+		ResultMap result = service.addFriend(friend, request);
 		return result;
 	}
 	
@@ -149,6 +151,30 @@ public class FriendController {
 		return resultMap;
 	}
 	
+	/**
+	 * 根据动态标签推荐好友
+	 * @param user_id
+	 * @param tag
+	 * @return
+	 */
+	@RequestMapping("recommendFriendByTag")
+	@ResponseBody
+	public ResultMap recommendFriendByTag(String user_id, String tag){
+		ResultMap resultMap = service.recommendFriendByTag(user_id, tag);
+		return resultMap;
+	}
+	
+	/**
+	 * 加载推荐用户的信息
+	 * @param friend_id
+	 * @return
+	 */
+	@RequestMapping("loadReComInfo")
+	@ResponseBody
+	public ResultMap loadReComInfo(String re_friend_id){
+		ResultMap resultMap = service.loadReComInfo(re_friend_id);
+		return resultMap;
+	}
 	
 }
 

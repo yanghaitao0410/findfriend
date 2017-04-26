@@ -31,5 +31,12 @@ public interface UserDao {
 	 */
 	User searchUser(@Param("user_name")String user_name, @Param("nick_name")String nick_name);
 
+	/**
+	 * 加载推荐用户的信息
+	 * @param friend_id
+	 * @return
+	 */
+	User loadReComInfo(@Param("user_id")String friend_id);
+
 
 }

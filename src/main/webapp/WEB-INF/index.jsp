@@ -27,15 +27,33 @@
     		}
     		//加载用户好友分组
     		loadGroup(user_id, context);
+    		
     		//加载用户好友
     		loadFriend(user_id, context);
-
     		$(".side-menu > li").addClass("menu-item");
+    		
+    		//推荐好友
+   			if("${tag}" != ""){ //tag推荐
+   				var tag = "${tag}";
+   				reFriend(context, user_id, tag);
+   			}
+    		//爱好推荐
+    		if("${reUser_id}" != "" && "${reUser_name}" != ""){
+    			var re_id = "${reUser_id}";
+    			var re_name = "${reUser_name}";
+    			$("#new_friend_list").append("<p>你可能和该用户有相同的爱好：</p></br>");
+				var nf_li = "<li><a class='new_friend' href='javascript:void(0);'>"+re_name+"</a><button class='add_friend_button'>加为好友</button></li>";
+				$nf_li = $(nf_li);
+				$nf_li.data("re_friend_id", re_id);
+				$("#new_friend_list").append($nf_li);
+    		}
+    		
 			//加载热门动态
     		loadHotShare(user_id, index, context, user_name);
     		
 			//点击热门动态按钮
     		$("#hot_share").click(function(){
+    			showShareDiv();
     			loadHotShare(user_id, index, context, user_name);
     		});
     		
@@ -174,7 +192,7 @@
     				var $this = $(this);
     				string_hobby += $this.val() + ",";
     			});
-    			updateUserInfo(user_id, nick_name, user_sex, user_phone_num, string_hobby);
+    			updateUserInfo(user_id, nick_name, user_sex, user_phone_num, string_hobby, context);
     		});
     		
     		//点击好友的小人加载好友信息
@@ -282,7 +300,7 @@
     			loadShareByTag(context, tag, user_name);
     		});
     		
-    		//点击tag搜索图片加载动态
+    		//点击tag搜索放大镜图片加载动态
     		$("#tag_search").click(function(){
     			var tag = $(this).prev("input").val().trim();
     			if(tag != "tag搜索动态"){
@@ -290,6 +308,25 @@
     				loadShareByTag(context, tag, user_name);
     			}
     		});
+    		//TODO 点击继续加载按钮 等上面加入选中样式后就可以操作了
+    		$(".continue_load_share").click(function(){
+    			
+    		});
+    		
+    		//点击推荐好友名字加载该用户信息
+    		$("#new_friend_list").on("click", ".new_friend", function(){
+    			var re_friend_id = $(this).parents("li").data("re_friend_id");
+    			showUserInfoDiv();
+    			loadReFriendInfo(context, re_friend_id)
+    		
+    		});
+    		
+    		//点击推荐好友的添加按钮
+    		$("#new_friend_list").on("click", ".add_friend_button", function(){
+    			var re_friend_id = $(this).parents("li").data("re_friend_id");
+    			addFriend(context, user_id, re_friend_id);
+    		});
+    		
     		
     	});
     </script>
@@ -328,7 +365,7 @@
 		</aside>
 		
 		<aside class="layout-left-side">
-			<ul id="new_friend_list">
+			<ul id="new_friend_list" >
 			  
 			</ul>
 		</aside>
@@ -376,6 +413,9 @@
 				<ul id="share_list">
 					
 				</ul>
+				<div>
+					<button class='continue_load_share' >继续加载</button>
+				</div>
 				<!-- <iframe class="body-iframe" name="iframe0" width="100%" height="99%" src="home.html" frameborder="0" data-id="home.html" seamless></iframe> -->
 			</div>
 			<div id="user_info" class="layout-main-body" style="display: none;">

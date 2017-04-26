@@ -32,7 +32,9 @@
     				success : function(data){
     					if(data.status == 0){
     						alert(data.msg);
-    						window.location.href="${pageContext.request.contextPath}/account/redirectIndex";
+    						var tag = $("#share_tag").val();
+    						console.log(tag);
+    						window.location.href="${pageContext.request.contextPath}/account/redirectIndex?tag=" + tag;
     					}
     				}
     			});
@@ -50,7 +52,7 @@
 			上传图片：<input type="file" name="share_image" /><br/>
 		</div>
 		<a href="javascript:void(0);" id="add_image">+</a><br/>
-		添加tag,不同的tag用","分隔:<input type="text" name="share_tag" /><br/>
+		添加tag,不同的tag用","分隔:<input id="share_tag" type="text" name="share_tag" /><br/>
 		<!-- 上传文件2：<input type="file" name="file2" /><br/> -->
 		<input id="share_btn" type="button" value="提交" />
 	</form>

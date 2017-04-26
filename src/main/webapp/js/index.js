@@ -61,12 +61,12 @@ function appendMenu(data){
 	    	//result += createChild(childArray,groups[k]);
 	    	result += createChild(childArray,groups[k]);
 	    	result +='</ul></li>';
-	    	$result = $(result);
+	    	//$result = $(result);
 	    	
     	}
     	
     }
-    $(".side-menu").append($result);	   
+    $(".side-menu").append(result);	   
 }
 
 //创建子菜单
@@ -84,7 +84,6 @@ function createChild(childArray,group_name){
 }
 
 function loadHotShare(user_id ,index, context, user_name){
-	showShareDiv();
 	//加载热门动态
 	$.ajax({
 		url : context+"/share/loadHotShare",
@@ -172,6 +171,12 @@ function appendShareList(result, context, user_name){
 			$li.data("share_id", data[i].share_id);
 			$("#share_list").append($li);
 		}
+		//TODO 将查出的记录条数藏到继续加载按钮上
+		var old_num = $(".continue_load_share").data("share_num");
+		if(old_num == undefined){
+			old_num = 0;
+		}
+		$(".continue_load_share").data("share_num", old_num + data.length);
 	}else{
 		alert(result.msg);
 	}
@@ -190,6 +195,7 @@ function loadSpecificShare(context, friend_id, index, user_name){
 }
 
 function clickGreed(context, share_id, user_id){
+	$("#new_friend_list").empty();
 	$.ajax({
 		url: context+"/share/clickGreed",
 		type:"post",
@@ -197,8 +203,18 @@ function clickGreed(context, share_id, user_id){
 		data:{"share_id": share_id, "user_id":user_id},
 		success:function(result){
 			if(result.status == 0){
-				var endorse_count = result.data;
+				var endorse_count = result.data.endorse_count;
+				var reUser = result.data.reUser;
 				$endorse_count.html(endorse_count);
+				var hobbys = result.data.hobbys;
+				var reUser = result.data.user;
+				if(reUser != undefined){
+					$("#new_friend_list").append("<p>你可能和该用户有相同的爱好：</p></br>");
+					var nf_li = "<li><a class='new_friend' href='javascript:void(0);'>"+reUser.user_name+"</a><button class='add_friend_button'>加为好友</button></li>";
+					$nf_li = $(nf_li);
+					$nf_li.data("re_friend_id", reUser.user_id);
+					$("#new_friend_list").append($nf_li);
+				}
 			}
 		}
 	});
@@ -454,16 +470,32 @@ function loadFriendInfo(context, user_id, friend_id){
 				var hobbys = result.data.hobby;
 				var friend_sex = friend.friend_sex;
 				var info_li = "<li>用户名：<p>"+friend.friend_name+"</p></br>";
-				info_li += "昵称：<p>"+friend.nick_name+"</p></br>";
+				
+				if(friend.nick_name != null){
+					info_li += "昵称：<p>"+friend.nick_name+"</p></br>";
+				}else{
+					info_li += "昵称：<p>该好友没有设置昵称</p></br>";
+				}
+				
 				if(friend_sex == 1){
 					info_li += "性别：<p>男</p></br>";
 				}else{
 					info_li += "性别：<p>女</p></br>";
 				}
-				info_li += "电话号码：<p>"+friend.friend_phonenum+"</p></br>";
+				
+				if(friend.friend_phonenum != null){
+					info_li += "电话号码：<p>"+friend.friend_phonenum+"</p></br>";
+				}else{
+					info_li += "电话号码：<p>该好友没有设置电话号码</p></br>";
+				}
+				
 				info_li += "爱好：</br>";
-				for(var i=0; i<hobbys.length; i++){
-					info_li += "<p>"+hobbys[i].hobby_name+"</p></br>";
+				if(hobbys.length > 0){
+					for(var i=0; i<hobbys.length; i++){
+						info_li += "<p>"+hobbys[i].hobby_name+"</p></br>";
+					}
+				}else{
+					info_li += "<p>该好友没有设置爱好！！</p></br>";
 				}
 				info_li += "</li>";
 				$info_li = $(info_li);
@@ -486,14 +518,21 @@ function queryUserInfo(context, user_id){
 				var hobbys = result.data.hobby;
 				var user_sex = user.user_sex;
 				var info_li = "<li>用户名：<p>"+user.user_name+"</p></br>";
-				info_li += "昵称：<input type='text' class='nick_name' name='nick_name' value='"+user.nick_name+"'></br>";
+				info_li += "昵称：<input type='text' class='nick_name' name='nick_name' value='";
+				if(user.nick_name != null){
+					info_li += user.nick_name;
+				}
+				info_li += "'></br>";
 				if(user_sex == 1){
 					info_li += "性别：</br><label><input class='user_sex' name='user_sex' type='radio' value='1' checked/>男 </label> <label><input class='user_sex' name='user_sex' type='radio' value='0' />女</label> </br>";
 				}else{
 					info_li += "性别：</br><label><input class='user_sex' name='user_sex' type='radio' value='1' />男 </label> <label><input class='user_sex' name='user_sex' type='radio' value='0' checked/>女</label> </br>";
 				}
-				info_li += "电话号码：<input type='text' class='user_phone_num' name='user_phone_num' value='"+user.user_phone_num+"'></br>";
-				info_li += "爱好：<a href='javascript:;' class='create_new_hobby'>+</a></br><div class='hobby_div'>";
+				info_li += "电话号码：<input type='text' class='user_phone_num' name='user_phone_num' value='";
+				if(user.user_phone_num != null){
+					info_li += user.user_phone_num;
+				}
+				info_li += "'></br>爱好：<a href='javascript:;' class='create_new_hobby'>+</a></br><div class='hobby_div'>";
 				for(var i=0; i<hobbys.length; i++){
 					info_li += "<div><input type='text' class='user_hobby' value='"+hobbys[i].hobby_name+"'><a class='delete_hobby' href='javascript:;'>X</a></br></div>";
 				}
@@ -506,7 +545,7 @@ function queryUserInfo(context, user_id){
 	});
 }
 
-function updateUserInfo(user_id, nick_name, user_sex, user_phone_num, string_hobby){
+function updateUserInfo(user_id, nick_name, user_sex, user_phone_num, string_hobby, context){
 	$.ajax({
 		url:context+"/account/updateUserInfo",
 		type:"post",
@@ -581,7 +620,8 @@ function addFriend(context, user_id, friend_id){
 		data:{"user_id":user_id, "friend_id":friend_id, "group_name" : group_name},
 		success:function(result){
 			alert(result.msg);
-			refresh();
+			 var reUser = result.data;
+			window.window.location.href=context + "/account/redirectIndex?user_id=" + reUser.user_id+"&user_name="+reUser.user_name;
 		}
 	});
 }
@@ -646,6 +686,7 @@ function showShareDiv(){
 	$("#change_group_div").hide();
 	$("#add_friend_div").hide();
 	$("#share_list").empty();
+	
 }
 
 function loadShareByTag(context, tag, user_name){
@@ -656,6 +697,71 @@ function loadShareByTag(context, tag, user_name){
 		data:{"tag":tag},
 		success:function(result){
 			appendShareList(result, context, user_name);
+		}
+	});
+}
+
+function reFriend(context, user_id, tag){
+	$.ajax({
+		url:context + "/friend/recommendFriendByTag",
+		type:"post",
+		dataType:"json",
+		data:{"user_id": user_id, "tag" : tag},
+		success:function(result){
+			if(result.status == 0){
+				$("#new_friend_list").append("<p>"+result.msg+"</p></br>");
+				var new_friend = result.data;
+				var nf_li = "<li><a class='new_friend' href='javascript:void(0);'>"+new_friend.user_name+"</a><button class='add_friend_button'>加为好友</button></li>";
+				$nf_li = $(nf_li);
+				$nf_li.data("re_friend_id", new_friend.user_id);
+				$("#new_friend_list").append($nf_li);
+			}
+		}
+	});
+}
+
+
+function loadReFriendInfo(context, re_friend_id){
+	$.ajax({
+		url:context+"/friend/loadReComInfo",
+		type:"post",
+		dataType:"json",
+		data:{"re_friend_id":re_friend_id},
+		success:function(result){
+			if(result.status == 0){
+				var re_user = result.data.user;
+				var hobbys = result.data.hobbys;
+				var re_user_sex = re_user.user_sex;
+				var info_li = "<li>用户名：<p>"+re_user.user_name+"</p></br>";
+				if(re_user.nick_name != null){
+					info_li += "昵称：<p>"+re_user.nick_name+"</p></br>";
+				}else{
+					info_li += "昵称：<p>该用户没有设置昵称</p></br>";
+				}
+				if(re_user_sex == 1){
+					info_li += "性别：<p>男</p></br>";
+				}else{
+					info_li += "性别：<p>女</p></br>";
+				}
+				if(re_user.user_phone_num != null){
+					info_li += "电话号码：<p>"+re_user.user_phone_num+"</p></br>";
+				}else{
+					info_li += "电话号码：<p>该用户没有设置电话号码</p></br>";
+				}
+				info_li += "爱好：</br>";
+				if(hobbys.length > 0){
+					for(var i=0; i<hobbys.length; i++){
+						info_li += "<p>"+hobbys[i].hobby_name+"</p></br>";
+					}
+				}else{
+					info_li += "<p>该用户没有设置爱好！！</p></br>";
+				}
+				
+				info_li += "</li>";
+				$info_li = $(info_li);
+				$info_li.data("re_friend_id", re_user.user_id);
+				$("#user_info_list").append($info_li);
+			}
 		}
 	});
 }

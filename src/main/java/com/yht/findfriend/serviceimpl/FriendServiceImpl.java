@@ -1,10 +1,13 @@
 package com.yht.findfriend.serviceimpl;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Service;
 
@@ -17,6 +20,8 @@ import com.yht.findfriend.entity.Hobby;
 import com.yht.findfriend.entity.ResultMap;
 import com.yht.findfriend.entity.User;
 import com.yht.findfriend.service.FriendService;
+import com.yht.findfriend.util.AccountUtil;
+import com.yht.findfriend.util.ShareUtil;
 
 @Service
 public class FriendServiceImpl implements FriendService {
@@ -126,7 +131,6 @@ public class FriendServiceImpl implements FriendService {
 		return result;
 	}
 
-	@SuppressWarnings("unused")
 	@Override
 	public ResultMap searchUser(String user_name, String nick_name) {
 		if("".equals(user_name.trim())){
@@ -137,6 +141,17 @@ public class FriendServiceImpl implements FriendService {
 		}
 		User user = userDao.searchUser(user_name, nick_name);
 		List<Hobby> hobbys = hobbyDao.queryHobby(user.getUser_id()+"");
+		return getUserInfoResult(user, hobbys);
+	}
+
+	/**
+	 * 将用户基本信息和用户爱好封装到返回类中返回
+	 * @param user
+	 * @param hobbys
+	 * @return
+	 */
+	private ResultMap getUserInfoResult(User user, List<Hobby> hobbys){
+		
 		ResultMap result= new ResultMap();
 		if(user != null){
 			result.setStatus(0);
@@ -153,9 +168,9 @@ public class FriendServiceImpl implements FriendService {
 		}
 		return result;
 	}
-
+	
 	@Override
-	public ResultMap addFriend(Friend friend) {
+	public ResultMap addFriend(Friend friend, HttpServletRequest request) {
 //		if(friend.getGroup_name() != null){
 //			int group_id = groupDao.queryGroupIdByName(friend.getGroup_name(), friend.getUser_id());
 //			if(group_id >= -1){
@@ -174,6 +189,17 @@ public class FriendServiceImpl implements FriendService {
 		if(count == 1){
 			result.setStatus(0);
 			result.setMsg("添加好友成功");
+			//根据当前用户和添加好友的爱好交集推荐好友
+			
+			List<String> ids = getIds(friend);
+			List<String> hobby_name = getIntersectHobby(friend);
+			if(hobby_name.size() > 0){
+				List<String> user_ids = hobbyDao.queryUserIdByHobby(ids, hobby_name);
+				if(user_ids != null && user_ids.size() > 0){
+					User reUser = userDao.queryUserInfo(user_ids.get(0));
+					result.setData(reUser);
+				}
+			}
 		}else{
 			result.setStatus(1);
 			result.setMsg("添加好友失败");
@@ -181,6 +207,41 @@ public class FriendServiceImpl implements FriendService {
 		return result;
 	}
 
+	/**
+	 * 将当前用户id和好友的id集合返回
+	 * @param friend
+	 * @return
+	 */
+	private List<String> getIds(Friend friend){
+		List<Friend> friends = friendDao.queryFriend(friend.getUser_id()+"");
+		List<String> ids = new ArrayList<String>();
+		ids.add(friend.getUser_id() + "");
+		for (Friend friend2 : friends) {
+			ids.add(friend2.getFriend_id()+"");
+		}
+		return ids;
+	}
+	
+	/**
+	 * 获取当前用户和当前好友的爱好交集
+	 * @param friend
+	 * @return
+	 */
+	private List<String> getIntersectHobby(Friend friend){
+		List<Hobby> userHobby = hobbyDao.queryHobby(friend.getUser_id()+""); 
+		List<Hobby> friendHobby = hobbyDao.queryHobby(friend.getFriend_id()+"");
+		List<String> user_hobby_name = new ArrayList<String>();
+		for(Hobby hobby : userHobby){
+			user_hobby_name.add(hobby.getHobby_name());
+		}
+		List<String> friend_hobby_name = new ArrayList<String>();
+		for(Hobby hobby : friendHobby){
+			friend_hobby_name.add(hobby.getHobby_name());
+		}
+		user_hobby_name.retainAll(friend_hobby_name);
+		return user_hobby_name;
+	}
+	
 	@Override
 	public ResultMap addGroup(String user_id, String group_name) {
 		ResultMap result = new ResultMap();
@@ -246,6 +307,50 @@ public class FriendServiceImpl implements FriendService {
 			resultMap.setMsg("该用户还不是好友！！");
 		}
 		return resultMap;
+	}
+
+	@Override
+	public ResultMap recommendFriendByTag(String user_id, String tag) {
+		List<Friend> friends = friendDao.queryFriend(user_id);
+		List<Integer> ids = AccountUtil.getIds(user_id, friends);
+		String[] tags = ShareUtil.splitTag(tag);
+		List<User> total = new ArrayList<User>();
+		for(int i=0; i < tags.length; i++){
+			List<User>  recommendFriends = friendDao.recommendFriendByTag(ids, tags[i]);
+			total.addAll(recommendFriends);
+		}
+		System.out.println(total.toString());
+		return getReFriendResult(total);
+	}
+	
+	/**
+	 * 处理结果集返回
+	 * @param total
+	 * @return
+	 */
+	private ResultMap getReFriendResult(List<User> total){
+		ResultMap resultMap = new ResultMap();
+		if(total != null && total.size() > 0){
+			//每次只推荐一名好友
+			User user = userDao.queryUserInfo(total.get(0).getUser_id() + "");
+			if(user != null){
+				resultMap.setStatus(0);
+				resultMap.setMsg("你可能和该用户有相同的爱好：");
+				resultMap.setData(user);
+				return resultMap;
+			}
+		}
+		resultMap.setStatus(1);
+		resultMap.setMsg("系统内没有该爱好的用户！！");
+		return resultMap;
+	}
+	
+
+	@Override
+	public ResultMap loadReComInfo(String re_friend_id) {
+		User reUser = userDao.queryUserInfo(re_friend_id);
+		List<Hobby> hobbys = hobbyDao.queryHobby(reUser.getUser_id()+"");
+		return getUserInfoResult(reUser, hobbys);
 	}
 
 }

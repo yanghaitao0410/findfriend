@@ -1,5 +1,7 @@
 package com.yht.findfriend.service;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.yht.findfriend.entity.Friend;
 import com.yht.findfriend.entity.ResultMap;
 import com.yht.findfriend.entity.User;
@@ -65,9 +67,10 @@ public interface FriendService {
 	/**
 	 * 添加好友的服务方法
 	 * @param friend
+	 * @param request 
 	 * @return
 	 */
-	ResultMap addFriend(Friend friend);
+	ResultMap addFriend(Friend friend, HttpServletRequest request);
 
 	/**
 	 * 新建分组的服务方法
@@ -99,5 +102,20 @@ public interface FriendService {
 	 * @return
 	 */
 	ResultMap checkFriendAdded(User user);
+
+	/**
+	 * 根据标签推荐好友的服务方法
+	 * @param user_id
+	 * @param tag
+	 * @return
+	 */
+	ResultMap recommendFriendByTag(String user_id, String tag);
+
+	/**
+	 * 加载推荐用户信息的服务方法
+	 * @param friend_id
+	 * @return
+	 */
+	ResultMap loadReComInfo(String re_friend_id);
 
 }

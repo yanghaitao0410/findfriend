@@ -93,7 +93,15 @@ public class AccountController {
 	}
 	
 	@RequestMapping("redirectIndex")
-	public String redirectIndex(){
+	public String redirectIndex(HttpServletRequest request, String tag, User user){
+		if(tag != null){
+			request.setAttribute("tag", tag);
+		}
+		if(user != null){
+			request.setAttribute("reUser_id", user.getUser_id());
+			request.setAttribute("reUser_name", user.getUser_name());
+		}
+		
 		return "index";
 	}
 	

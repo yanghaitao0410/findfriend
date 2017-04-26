@@ -69,6 +69,14 @@ public interface FriendDao {
 	 */
 	int checkFriendAdded(User user);
 
+	/**
+	 * 根据动态标签推荐好友
+	 * @param user_id 
+	 * @param ids
+	 * @return
+	 */
+	List<User> recommendFriendByTag(@Param("list")List<Integer> ids, @Param("tag")String tag);
+
 	
 
 }

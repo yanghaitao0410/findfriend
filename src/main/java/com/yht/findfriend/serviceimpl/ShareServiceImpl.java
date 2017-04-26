@@ -1,16 +1,12 @@
 package com.yht.findfriend.serviceimpl;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,10 +16,15 @@ import com.yht.findfriend.dao.GreatDao;
 import com.yht.findfriend.dao.ShareDao;
 import com.yht.findfriend.dao.TalkDao;
 import com.yht.findfriend.dao.UserDao;
+import com.yht.findfriend.entity.Friend;
 import com.yht.findfriend.entity.ResultMap;
 import com.yht.findfriend.entity.Share;
 import com.yht.findfriend.entity.Talk;
+import com.yht.findfriend.entity.User;
+import com.yht.findfriend.service.FriendService;
 import com.yht.findfriend.service.ShareService;
+import com.yht.findfriend.util.AccountUtil;
+import com.yht.findfriend.util.ShareUtil;
 
 @Service
 public class ShareServiceImpl implements ShareService {
@@ -38,11 +39,13 @@ public class ShareServiceImpl implements ShareService {
 	private GreatDao greatDao;
 	@Resource
 	private TalkDao talkDao;
+	@Resource 
+	private FriendService friendService;
 	
 	@Override
 	public ResultMap sendShare(Share share, MultipartFile[] share_images, HttpServletRequest request) {
 		ResultMap result = new ResultMap();
-		int count = shareDao.sendShare(getShare(share, share_images, request));
+		int count = shareDao.sendShare(ShareUtil.getShare(share, share_images, request));
 		if(count == 1){
 			result.setStatus(0);
 			result.setMsg("发布动态成功！！！");
@@ -53,65 +56,6 @@ public class ShareServiceImpl implements ShareService {
 		return result;
 	}
 	
-	/**
-	 * 为share赋值，做将动态存入数据库之前的准备工作
-	 * @param share
-	 * @param share_images
-	 * @param request
-	 * @return
-	 */
-	private Share getShare(Share share, MultipartFile[] share_images, HttpServletRequest request){
-		HttpSession session = request.getSession();
-		String user_id = (String) session.getAttribute("user_id");
-		String user_name = (String) session.getAttribute("user_name");
-		share.setUser_id(Integer.parseInt(user_id));
-		share.setUser_name(user_name);
-		if(share_images != null){
-			try {
-				share.setImage_uri(getImageUri(share_images, user_id));
-			} catch (IllegalStateException e) {
-				e.printStackTrace();
-			} catch (IOException e) {	
-				e.printStackTrace();
-			}
-		}
-		share.setShare_creatime(System.currentTimeMillis());
-		return share;
-	}
-	
-	/**
-	 * 将图片存放到服务器，返回图片地址
-	 * @param share_image
-	 * @return
-	 * @throws IOException 
-	 * @throws IllegalStateException 
-	 */
-	private String getImageUri(MultipartFile[] share_images, String user_id) throws IllegalStateException, IOException{
-		String savePath = "D:/upload/" + user_id ;
-		StringBuilder builder = new StringBuilder();
-		for (MultipartFile multipartFile : share_images) {
-			String image_name = multipartFile.getOriginalFilename();
-			String save_name = getSaveName(image_name);
-			builder.append(save_name);
-			builder.append(",");
-			File file = new File(savePath, save_name);
-			if(!file.exists()){
-				file.mkdirs();
-			}
-			multipartFile.transferTo(file);
-		}
-		return builder.toString();
-	}
-
-	/**
-	 * 为了防止图片重名被覆盖，在图片名前加上不重复的uuid
-	 * @param name
-	 * @return
-	 */
-	private String getSaveName(String name){
-		return UUID.randomUUID() + "_" +name;
-	}
-
 	@Override
 	public ResultMap loadShare(String user_id, int index) {
 		List<Share> data = shareDao.loadShare(user_id, index);
@@ -127,11 +71,11 @@ public class ShareServiceImpl implements ShareService {
 	 */
 	private ResultMap getResultMap(List<Share> data) {
 		for (Share share : data) {
-			share.setImages(splitUri(share.getImage_uri()));
+			share.setImages(ShareUtil.splitUri(share.getImage_uri()));
 			//将share对应的talk信息查出存入share
 			share = setTalks(share);
 			if(share.getShare_tag() != null){
-				share.setTags(splitTag(share.getShare_tag()));
+				share.setTags(ShareUtil.splitTag(share.getShare_tag()));
 			}
 		}
 		ResultMap resultMap = new ResultMap();
@@ -146,15 +90,8 @@ public class ShareServiceImpl implements ShareService {
 		return resultMap;
 	}
 
-	/**
-	 * 将tag字符串拆分为一个个tag
-	 * @param tag
-	 * @return
-	 */
-	private String[] splitTag(String tag){
-		String[]tags = tag.split(",");
-		return tags;
-	}
+	
+	
 	
 	/**
 	 * 为动态设置评论信息
@@ -192,18 +129,7 @@ public class ShareServiceImpl implements ShareService {
 		return talks;
 	}
 	
-	/**
-	 * 将图片地址集合拆分成单张图片地址
-	 * @param image_uri
-	 * @return
-	 */
-	private String[] splitUri(String image_uri){
-		String[] result = image_uri.split(",");
-//		for (String string : result) {
-//			System.out.println(string);
-//		}
-		return result;
-	}
+
 
 	@Override
 	public ResultMap loadHotShare(String user_id, int index) {
@@ -218,9 +144,11 @@ public class ShareServiceImpl implements ShareService {
 		return getResultMap(shares);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public ResultMap clickGreed(String share_id, String user_id, HttpServletRequest request) {
-		Share share = shareDao.loadShareByShare_id(share_id); 
+		Share share = shareDao.loadShareByShare_id(share_id);
+		Map<String ,Object> data = new HashMap<String, Object>();
 		int count = greatDao.getGreat(user_id, share_id);
 		if(count == 1){//该用户已经赞过
 			share.setEndorse_count(share.getEndorse_count() - 1);
@@ -228,6 +156,11 @@ public class ShareServiceImpl implements ShareService {
 		}else if(count == 0){ //该用户没有赞过
 			share.setEndorse_count(share.getEndorse_count() + 1);
 			greatDao.insertGreat(share_id, user_id);
+			//推荐好友
+			ResultMap result = friendService.loadReComInfo(share.getUser_id()+"");
+			if(result.getStatus() == 0){
+				data = (Map<String, Object>)result.getData();
+			}
 		}
 		request.setAttribute("endorse_count", share.getEndorse_count());
 		count = shareDao.updateShare(share);
@@ -235,7 +168,8 @@ public class ShareServiceImpl implements ShareService {
 		if(count == 1){
 			resultMap.setStatus(0);
 			resultMap.setMsg("点赞成功");
-			resultMap.setData(share.getEndorse_count());
+			data.put("endorse_count", share.getEndorse_count());
+			resultMap.setData(data);
 		}else{
 			resultMap.setStatus(1);
 			resultMap.setMsg("点赞失败");
@@ -275,8 +209,12 @@ public class ShareServiceImpl implements ShareService {
 	@Override
 	public ResultMap loadGreatShare(String user_id, int index) {
 		List<Integer> share_ids = greatDao.getShare_id(user_id);
-		List<Share> shares = shareDao.loadShareByTalkORGreat(share_ids, index);
-		return getResultMap(shares);
+		if(share_ids != null && share_ids.size() > 0){
+			List<Share> shares = shareDao.loadShareByTalkORGreat(share_ids, index);
+			return getResultMap(shares);
+		}
+		
+		return null;
 	}
 
 	@Override
@@ -318,7 +256,7 @@ public class ShareServiceImpl implements ShareService {
 		Share share = shareDao.loadShareByShare_id(share_id);
 		ResultMap resultMap = new ResultMap();
 		
-		if(deleteImage(share)){
+		if(ShareUtil.deleteImage(share)){
 			int count = shareDao.deleteShare(share_id);
 			greatDao.deleteGreat(share_id, user_id);
 			Talk talk = new Talk();
@@ -336,26 +274,7 @@ public class ShareServiceImpl implements ShareService {
 		return resultMap;
 	}
 
-	/**
-	 * 删除动态的图片
-	 * @param share
-	 * @return
-	 */
-	private boolean deleteImage(Share share){
-		boolean result = true;
-		String[] images_uri = splitUri(share.getImage_uri());
-		for (String image_uri : images_uri) {
-			File file = new File(
-					"d:"+ File.separator +"upload" + File.separator + 
-					share.getUser_id() + File.separator + image_uri);
-			if(file.exists()){
-				if(!file.delete()){
-					result = false;
-				}
-			}
-		}
-		return result;
-	}
+
 
 	@Override
 	public ResultMap loadShareByTag(String tag) {

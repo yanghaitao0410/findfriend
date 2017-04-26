@@ -23,6 +23,11 @@ public class Hobby {
 	public void setHobby_name(String hobby_name) {
 		this.hobby_name = hobby_name;
 	}
+	@Override
+	public String toString() {
+		return "Hobby [user_id=" + user_id + ", hobby_id=" + hobby_id + ", hobby_name=" + hobby_name + "]";
+	}
+	
 	
 	
 }

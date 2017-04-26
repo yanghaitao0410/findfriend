@@ -23,4 +23,22 @@
     		(#{user_id}, #{hobby_name})
     </insert>
     
+    <select id="queryUserIdByHobby" resultType="string">
+    	select 
+			user_id
+		from 	
+			user_hobby 
+		where 
+			hobby_name in
+			<foreach collection="hobby_names" open="(" close=")" separator="," index="index1" item="hobby_name">
+				#{hobby_name}
+			</foreach>
+		and
+			user_id not in 
+			<foreach collection="ids" open="(" close=")" separator="," index="index2" item="id">
+				#{id}
+			</foreach>	
+    </select>
+    
+    
 </mapper>
